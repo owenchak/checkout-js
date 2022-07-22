@@ -432,7 +432,7 @@ class Customer extends Component<CustomerProps & WithCheckoutCustomerProps, Cust
         } = this.props;
 
         if (providerWithCustomCheckout) {
-            emitAnalyticsEvent("Account recognition");
+            emitAnalyticsEvent("Account lookup button click");
             await executePaymentMethodCheckout({ methodId: providerWithCustomCheckout, continueWithCheckoutCallback: onContinueAsGuest });
         } else {
             onContinueAsGuest();
