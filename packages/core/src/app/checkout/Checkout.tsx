@@ -209,7 +209,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         // set a stepComplete state flag so that duplicate events aren't emitted
         // from the navigateToNextStep function
         switch(event) {
-            case "Account recognition":
+            case "Account lookup button click":
                 this.setState({ isCustomerEmailComplete: true });
                 break;
             case "Shipping method step complete":
@@ -515,7 +515,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                     if (!isCustomerEmailComplete) {
                         // if stepping through customer step automatically (saved info) emit all beginning events
                         this.emitAnalyticsEvent("Detail entry began")
-                        this.emitAnalyticsEvent("Account recognition")
+                        this.emitAnalyticsEvent("Account lookup button click")
                     }
                     break;
                 case "billing":
