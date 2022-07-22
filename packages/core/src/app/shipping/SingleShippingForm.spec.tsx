@@ -38,6 +38,8 @@ describe('SingleShippingForm', () => {
             initialize: jest.fn(),
             updateAddress: jest.fn(),
             deleteConsignments: jest.fn(),
+            emitAnalyticsEvent: jest.fn(),
+            isBillingSameAsShipping: true,
         };
 
         component = mount(

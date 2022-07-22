@@ -34,6 +34,7 @@ describe('Billing Component', () => {
             navigateNextStep: jest.fn(),
             onReady: jest.fn(),
             onUnhandledError: jest.fn(),
+            emitAnalyticsEvent: jest.fn(),
         };
 
         jest.spyOn(checkoutService.getState().data, 'getBillingAddressFields')

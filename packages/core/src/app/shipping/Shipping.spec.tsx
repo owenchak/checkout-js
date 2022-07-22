@@ -38,6 +38,8 @@ describe('Shipping Component', () => {
             onSignIn: jest.fn(),
             navigateNextStep: jest.fn(),
             onUnhandledError: jest.fn(),
+            emitAnalyticsEvent: jest.fn(),
+            onCreateAccount: jest.fn(),
         };
 
         jest.spyOn(checkoutService, 'loadShippingAddressFields')

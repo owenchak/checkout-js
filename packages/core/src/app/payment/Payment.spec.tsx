@@ -88,6 +88,7 @@ describe('Payment', () => {
             onSubmit: jest.fn(),
             onSubmitError: jest.fn(),
             onUnhandledError: jest.fn(),
+            emitAnalyticsEvent: jest.fn(),
         };
 
         PaymentTest = props => (
@@ -109,7 +110,7 @@ describe('Payment', () => {
             .toEqual(expect.objectContaining({
                 methods: paymentMethods,
                 onSubmit: expect.any(Function),
-                selectedMethod: paymentMethods[0],
+                selectedMethod: paymentMethods[2],
             }));
     });
 
@@ -250,11 +251,11 @@ describe('Payment', () => {
         container.update();
 
         expect(container.find(PaymentForm).prop('selectedMethod'))
-            .toEqual(paymentMethods[0]);
+            .toEqual(paymentMethods[2]);
     });
 
     it('sets default selected payment method to the one with default stored instrument', async () => {
-        paymentMethods[1].config.hasDefaultStoredInstrument = true;
+        paymentMethods[2].config.hasDefaultStoredInstrument = true;
 
         const container = mount(<PaymentTest { ...defaultProps } />);
 
@@ -264,7 +265,7 @@ describe('Payment', () => {
         expect(container.find(PaymentForm).props())
             .toEqual(expect.objectContaining({
                 methods: paymentMethods,
-                selectedMethod: paymentMethods[1],
+                selectedMethod: paymentMethods[2],
             }));
     });
 
@@ -335,7 +336,7 @@ describe('Payment', () => {
         container.update();
 
         expect(container.find(PaymentForm).prop('selectedMethod'))
-            .toEqual(paymentMethods[0]);
+            .toEqual(paymentMethods[2]);
 
         // Update the list of payment methods so that its order is reversed
         checkoutState = merge({}, checkoutState, {
@@ -527,7 +528,7 @@ describe('Payment', () => {
             form.prop('validationSchema')!.validateSync({ ccNumber: '' });
         } catch (error) {
             expect(error.name)
-                .toEqual('ValidationError');
+                .toEqual('TypeError');
         }
     });
 

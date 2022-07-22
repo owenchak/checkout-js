@@ -16,6 +16,7 @@ import EmailLoginForm from './EmailLoginForm';
 import GuestForm, { GuestFormProps } from './GuestForm';
 import LoginForm, { LoginFormProps } from './LoginForm';
 
+
 describe('Customer', () => {
     let CustomerTest: FunctionComponent<CustomerProps & Partial<WithCheckoutCustomerProps>>;
     let billingAddress: BillingAddress;
@@ -68,7 +69,7 @@ describe('Customer', () => {
     describe('when view type is "guest"', () => {
         it('matches snapshot', async () => {
             const component = mount(
-                <CustomerTest viewType={ CustomerViewType.Guest } />
+                <CustomerTest emitAnalyticsEvent={ jest.fn() } viewType={ CustomerViewType.Guest } />
             );
 
             await new Promise(resolve => process.nextTick(resolve));
@@ -80,7 +81,7 @@ describe('Customer', () => {
 
         it('renders guest form by default', async () => {
             const component = mount(
-                <CustomerTest viewType={ CustomerViewType.Guest } />
+                <CustomerTest emitAnalyticsEvent={ jest.fn() } viewType={ CustomerViewType.Guest } />
             );
 
             await new Promise(resolve => process.nextTick(resolve));
@@ -95,7 +96,7 @@ describe('Customer', () => {
                 .mockReturnValue(undefined);
 
             const component = mount(
-                <CustomerTest viewType={ CustomerViewType.Guest } />
+                <CustomerTest emitAnalyticsEvent={ jest.fn() } viewType={ CustomerViewType.Guest } />
             );
 
             await new Promise(resolve => process.nextTick(resolve));
@@ -110,7 +111,7 @@ describe('Customer', () => {
                 .mockReturnValue(undefined);
 
             const component = mount(
-                <CustomerTest viewType={ CustomerViewType.Guest } />
+                <CustomerTest emitAnalyticsEvent={ jest.fn() } viewType={ CustomerViewType.Guest } />
             );
 
             await new Promise(resolve => process.nextTick(resolve));
@@ -136,7 +137,7 @@ describe('Customer', () => {
                 });
 
             const component = mount(
-                <CustomerTest viewType={ CustomerViewType.CreateAccount } />
+                <CustomerTest emitAnalyticsEvent={ jest.fn() } viewType={ CustomerViewType.CreateAccount } />
             );
 
             await new Promise(resolve => process.nextTick(resolve));
@@ -148,7 +149,7 @@ describe('Customer', () => {
 
         it('passes data to guest form', async () => {
             const component = mount(
-                <CustomerTest viewType={ CustomerViewType.Guest } />
+                <CustomerTest emitAnalyticsEvent={ jest.fn() } viewType={ CustomerViewType.Guest } />
             );
 
             await new Promise(resolve => process.nextTick(resolve));
@@ -168,6 +169,7 @@ describe('Customer', () => {
 
             const component = mount(
                 <CustomerTest
+                    emitAnalyticsEvent={ jest.fn() }
                     viewType={ CustomerViewType.Guest }
                 />
             );
@@ -196,6 +198,7 @@ describe('Customer', () => {
             const subscribeToNewsletter = jest.fn();
             const component = mount(
                 <CustomerTest
+                    emitAnalyticsEvent={ jest.fn() }
                     viewType={ CustomerViewType.Guest }
                 />
             );
@@ -224,6 +227,7 @@ describe('Customer', () => {
             const handleChangeViewType = jest.fn();
             const component = mount(
                 <CustomerTest
+                    emitAnalyticsEvent={ jest.fn() }
                     onChangeViewType={ handleChangeViewType }
                     viewType={ CustomerViewType.Guest }
                 />
@@ -246,6 +250,7 @@ describe('Customer', () => {
             const handleContinueAsGuest = jest.fn();
             const component = mount(
                 <CustomerTest
+                    emitAnalyticsEvent={ jest.fn() }
                     onContinueAsGuest={ handleContinueAsGuest }
                     viewType={ CustomerViewType.Guest }
                 />
@@ -273,6 +278,7 @@ describe('Customer', () => {
             const handleContinueAsGuest = jest.fn();
             const component = mount(
                 <CustomerTest
+                    emitAnalyticsEvent={ jest.fn() }
                     onContinueAsGuest={ handleContinueAsGuest }
                     viewType={ CustomerViewType.Guest }
                 />
@@ -300,6 +306,7 @@ describe('Customer', () => {
             const handleChangeViewType = jest.fn();
             const component = mount(
                 <CustomerTest
+                    emitAnalyticsEvent={ jest.fn() }
                     onChangeViewType={ handleChangeViewType }
                     viewType={ CustomerViewType.Guest }
                 />
@@ -334,6 +341,7 @@ describe('Customer', () => {
             const handleChangeViewType = jest.fn();
             const component = mount(
                 <CustomerTest
+                    emitAnalyticsEvent={ jest.fn() }
                     onChangeViewType={ handleChangeViewType }
                     viewType={ CustomerViewType.Guest }
                 />
@@ -364,6 +372,7 @@ describe('Customer', () => {
 
             const component = mount(
                 <CustomerTest
+                    emitAnalyticsEvent={ jest.fn() }
                     onChangeViewType={ handleChangeViewType }
                     viewType={ CustomerViewType.Guest }
                 />
@@ -391,6 +400,7 @@ describe('Customer', () => {
             const handleError = jest.fn();
             const component = mount(
                 <CustomerTest
+                    emitAnalyticsEvent={ jest.fn() }
                     onContinueAsGuestError={ handleError }
                     viewType={ CustomerViewType.Guest }
                 />
@@ -413,7 +423,7 @@ describe('Customer', () => {
 
         it('retains draft email address when switching to login view', async () => {
             const component = mount(
-                <CustomerTest viewType={ CustomerViewType.Guest } />
+                <CustomerTest emitAnalyticsEvent={ jest.fn() } viewType={ CustomerViewType.Guest } />
             );
 
             await new Promise(resolve => process.nextTick(resolve));
@@ -434,6 +444,7 @@ describe('Customer', () => {
         it('matches snapshot', async () => {
             const component = mount(
                 <CustomerTest
+                    emitAnalyticsEvent={ jest.fn() }
                     isAccountCreationEnabled={ true }
                     viewType={ CustomerViewType.Login }
                 />
@@ -448,7 +459,7 @@ describe('Customer', () => {
 
         it('renders login form', async () => {
             const component = mount(
-                <CustomerTest viewType={ CustomerViewType.Login } />
+                <CustomerTest emitAnalyticsEvent={ jest.fn() } viewType={ CustomerViewType.Login } />
             );
 
             await new Promise(resolve => process.nextTick(resolve));
@@ -461,6 +472,7 @@ describe('Customer', () => {
         it('renders sign-in email when link is clicked', async () => {
             const component = mount(
                 <CustomerTest
+                    emitAnalyticsEvent={ jest.fn() }
                     isSignInEmailEnabled={ true }
                     viewType={ CustomerViewType.Login }
                 />);
@@ -481,6 +493,7 @@ describe('Customer', () => {
         it('does not render sign-in email link when is embedded checkout', async () => {
             const component = mount(
                 <CustomerTest
+                    emitAnalyticsEvent={ jest.fn() }
                     isEmbedded={ true }
                     isSignInEmailEnabled={ true }
                     viewType={ CustomerViewType.Login }
@@ -498,7 +511,7 @@ describe('Customer', () => {
 
         it('passes data to login form', async () => {
             const component = mount(
-                <CustomerTest viewType={ CustomerViewType.Login } />
+                <CustomerTest emitAnalyticsEvent={ jest.fn() } viewType={ CustomerViewType.Login } />
             );
 
             await new Promise(resolve => process.nextTick(resolve));
@@ -517,7 +530,7 @@ describe('Customer', () => {
                 .mockReturnValue(Promise.resolve(checkoutService.getState()));
 
             const component = mount(
-                <CustomerTest viewType={ CustomerViewType.Login } />
+                <CustomerTest emitAnalyticsEvent={ jest.fn() } viewType={ CustomerViewType.Login } />
             );
 
             await new Promise(resolve => process.nextTick(resolve));
@@ -543,6 +556,7 @@ describe('Customer', () => {
             const handleSignedIn = jest.fn();
             const component = mount(
                 <CustomerTest
+                    emitAnalyticsEvent={ jest.fn() }
                     onSignIn={ handleSignedIn }
                     viewType={ CustomerViewType.Login }
                 />
@@ -570,6 +584,7 @@ describe('Customer', () => {
             const handleError = jest.fn();
             const component = mount(
                 <CustomerTest
+                    emitAnalyticsEvent={ jest.fn() }
                     onSignInError={ handleError }
                     viewType={ CustomerViewType.Login }
                 />
@@ -600,8 +615,8 @@ describe('Customer', () => {
                 .mockReturnValue(Promise.resolve(checkoutService.getState()));
 
             const component = mount(
-                <CustomerTest viewType={ CustomerViewType.Login } />
-            );
+                <CustomerTest emitAnalyticsEvent={ jest.fn() } viewType={ CustomerViewType.Login } />
+            ); 
 
             await new Promise(resolve => process.nextTick(resolve));
             component.update();
@@ -618,6 +633,7 @@ describe('Customer', () => {
             const handleChangeViewType = jest.fn();
             const component = mount(
                 <CustomerTest
+                    emitAnalyticsEvent={ jest.fn() }
                     onChangeViewType={ handleChangeViewType }
                     viewType={ CustomerViewType.Login }
                 />
@@ -636,7 +652,7 @@ describe('Customer', () => {
 
         it('retains draft email address when switching to guest view', async () => {
             const component = mount(
-                <CustomerTest viewType={ CustomerViewType.Login } />
+                <CustomerTest emitAnalyticsEvent={ jest.fn() } viewType={ CustomerViewType.Login } />
             );
 
             await new Promise(resolve => process.nextTick(resolve));
@@ -657,7 +673,7 @@ describe('Customer', () => {
     describe('when view type is "cancellable_enforced_login"', () => {
         it('renders login form', async () => {
             const component = mount(
-                <CustomerTest viewType={ CustomerViewType.CancellableEnforcedLogin } />
+                <CustomerTest emitAnalyticsEvent={ jest.fn() } viewType={ CustomerViewType.CancellableEnforcedLogin } />
             );
 
             await new Promise(resolve => process.nextTick(resolve));
@@ -671,7 +687,7 @@ describe('Customer', () => {
     describe('when view type is "suggested_login"', () => {
         it('renders login form', async () => {
             const component = mount(
-                <CustomerTest viewType={ CustomerViewType.SuggestedLogin } />
+                <CustomerTest emitAnalyticsEvent={ jest.fn() } viewType={ CustomerViewType.SuggestedLogin } />
             );
 
             await new Promise(resolve => process.nextTick(resolve));
@@ -685,7 +701,7 @@ describe('Customer', () => {
     describe('when view type is "enforced_login"', () => {
         it('renders login form', async () => {
             const component = mount(
-                <CustomerTest viewType={ CustomerViewType.EnforcedLogin } />
+                <CustomerTest emitAnalyticsEvent={ jest.fn() } viewType={ CustomerViewType.EnforcedLogin } />
             );
 
             await new Promise(resolve => process.nextTick(resolve));
@@ -699,6 +715,7 @@ describe('Customer', () => {
             const sendLoginEmail = jest.fn(() => new Promise(resolve => resolve()) as any);
             const component = mount(
                 <CustomerTest
+                    emitAnalyticsEvent={ jest.fn() }
                     email="foo@bar.com"
                     isSignInEmailEnabled={ true }
                     sendLoginEmail={ sendLoginEmail }
@@ -723,6 +740,7 @@ describe('Customer', () => {
             const sendLoginEmail = jest.fn(() => new Promise((_, reject) => reject()) as any);
             const component = mount(
                 <CustomerTest
+                    emitAnalyticsEvent={ jest.fn() }
                     email="foo@bar.com"
                     isSignInEmailEnabled={ true }
                     sendLoginEmail={ sendLoginEmail }

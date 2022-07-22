@@ -31,6 +31,8 @@ import CheckoutProvider from './CheckoutProvider';
 import CheckoutStep, { CheckoutStepProps } from './CheckoutStep';
 import CheckoutStepType from './CheckoutStepType';
 
+jest.mock('./AnalyticsEvents')
+
 describe('Checkout', () => {
     let CheckoutTest: FunctionComponent<CheckoutProps>;
     let checkoutService: CheckoutService;
