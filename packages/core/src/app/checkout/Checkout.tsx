@@ -79,7 +79,6 @@ export interface CheckoutState {
     isBuyNowCartEnabled: boolean;
     hasDetailEntryBegan: boolean;
     isCustomerEmailComplete: boolean;
-    isBoltCheckoutButtonRendered: boolean;
     isShippingDetailsEntered: boolean;
     isShippingComplete: boolean;
     isBillingComplete: boolean;
@@ -117,7 +116,6 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         isBuyNowCartEnabled: false,
         hasDetailEntryBegan: false,
         isCustomerEmailComplete: false,
-        isBoltCheckoutButtonRendered: false,
         isShippingDetailsEntered: false,
         isShippingComplete: false,
         isBillingComplete: false,
@@ -218,6 +216,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
             case GuestCheckoutEvents.DetailEntryBegan:
                 this.setState({ hasDetailEntryBegan: true });
                 break;
+            case GuestCheckoutEvents.AccountLookupSkipped:
             case GuestCheckoutEvents.AccountButtonClick:
                 this.setState({ isCustomerEmailComplete: true });
                 break;
@@ -536,13 +535,21 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                         this.emitAnalyticsEvent(GuestCheckoutEvents.DetailEntryBegan)
                     }
                     if (!isCustomerEmailComplete) {
-                        // if stepping through customer step automatically (saved info) emit all beginning events
-                        this.emitAnalyticsEvent(GuestCheckoutEvents.AccountButtonClick)
+                        // emit if stepping through customer step automatically (saved info)
+                        this.emitAnalyticsEvent(GuestCheckoutEvents.AccountLookupSkipped)
+                    }
+                    break;
+                case "shipping":
+                    if (!isShippingDetailsEntered) {
+                        this.emitAnalyticsEvent(GuestCheckoutEvents.ShippingEntered);
+                    }
+                    if (!isShippingComplete) {
+                        this.emitAnalyticsEvent(GuestCheckoutEvents.ShippingComplete);
                     }
                     break;
                 case "billing":
-                    // for some reason "shipping" is *never* a previous step,
-                    // so checking for shipping status when billing is the previous step
+                    // if shipping and billing are identical and skip to payment step
+                    // checking for shipping status when billing is the previous step
                     shippingStep = find(steps, { type: "shipping" }) as CheckoutStepStatus
                     if (shippingStep && shippingStep.isComplete) {
                         if (!isShippingDetailsEntered) {
