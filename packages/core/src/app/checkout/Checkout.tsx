@@ -503,7 +503,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
             activeStepType,
             hasDetailEntryBegan,
             isCustomerEmailComplete,
-            isBoltCheckoutButtonRendered,
+            isShippingDetailsEntered,
             isShippingComplete,
             isBillingComplete
         } = this.state;
@@ -518,8 +518,8 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         }
 
         const nextStepIndex = findIndex(steps, { type })
-        let prevStepIndex = nextStepIndex - 1;
-        let prevStep = prevStepIndex >= 0 && steps[prevStepIndex];
+        const prevStepIndex = nextStepIndex - 1;
+        const prevStep = prevStepIndex >= 0 && steps[prevStepIndex];
 
         /**
          * BOLT ANALYTICS
@@ -527,12 +527,9 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
          * Events will still be emitted from the individual steps and will set completion state flags
          * so that when this block runs during step transitions, we don't emit duplicate events.
          */
-        // skip previous steps that aren't required (e.g. shipping is not required for carts with only digital products)
-        while (prevStepIndex > 0 && prevStep && !prevStep.isRequired) {
-            prevStep = steps[--prevStepIndex];
-        }
 
         if (prevStep && prevStep.isComplete) {
+            let shippingStep;
             switch(prevStep.type) {
                 case "customer":
                     if (!hasDetailEntryBegan) {
@@ -546,10 +543,12 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                 case "billing":
                     // for some reason "shipping" is *never* a previous step,
                     // so checking for shipping status when billing is the previous step
-                    if (!isShippingComplete) {
-                        const shippingStep = (find(steps, { type: "shipping" }) as CheckoutStepStatus)
-                        if (shippingStep && shippingStep.isComplete) {
+                    shippingStep = find(steps, { type: "shipping" }) as CheckoutStepStatus
+                    if (shippingStep && shippingStep.isComplete) {
+                        if (!isShippingDetailsEntered) {
                             this.emitAnalyticsEvent(GuestCheckoutEvents.ShippingEntered);
+                        }
+                        if (!isShippingComplete) {
                             this.emitAnalyticsEvent(GuestCheckoutEvents.ShippingComplete);
                         }
                     }
