@@ -8,6 +8,7 @@ export enum GuestCheckoutEvents {
   CheckoutLoadSuccess = "Checkout load success",
   DetailEntryBegan = "Detail entry began",
   AccountButtonClick = "Account lookup button click",
+  AccountLookupSkipped = "Account lookup skipped",
   BoltButtonExists = "Bolt recognized button rendered",
   BoltButtonClicked = "Bolt recognized button clicked",
   ShippingEntered = "Shipping details fully entered",
