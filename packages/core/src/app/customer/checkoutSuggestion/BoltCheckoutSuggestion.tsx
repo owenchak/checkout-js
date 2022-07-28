@@ -1,6 +1,7 @@
 import { CheckoutSelectors, CustomerInitializeOptions, CustomerRequestOptions, ExecutePaymentMethodCheckoutOptions } from '@bigcommerce/checkout-sdk';
 import { noop } from 'lodash';
 import React, { memo, useEffect, useState, FunctionComponent } from 'react';
+import { GuestCheckoutEvents } from '../../checkout/AnalyticsEvents';
 
 import { stopPropagation } from '../../common/dom';
 import { TranslatedString } from '../../locale';
@@ -54,7 +55,7 @@ const BoltCheckoutSuggestion: FunctionComponent<BoltCheckoutSuggestionProps> = (
     }
 
     const handleActionClick = async () => {
-        emitAnalyticsEvent("Bolt checkout button clicked");
+        emitAnalyticsEvent(GuestCheckoutEvents.BoltButtonClicked);
         await executePaymentMethodCheckout({ methodId });
     };
 

@@ -5,6 +5,7 @@ import { createSelector } from 'reselect';
 
 import { isEqualAddress, mapAddressFromFormValues } from '../address';
 import { withCheckout, CheckoutContextProps } from '../checkout';
+import { GuestCheckoutEvents } from '../checkout/AnalyticsEvents';
 import { EMPTY_ARRAY } from '../common/utility';
 import { LoadingOverlay } from '../ui/loading';
 
@@ -197,9 +198,9 @@ class Shipping extends Component<ShippingProps & WithCheckoutShippingProps, Ship
         const promises: Array<Promise<CheckoutSelectors>> = [];
         const hasRemoteBilling = this.hasRemoteBilling(methodId);
 
-        emitAnalyticsEvent("Shipping method step complete");
+        emitAnalyticsEvent(GuestCheckoutEvents.ShippingComplete);
         if (billingSameAsShipping) {
-            emitAnalyticsEvent("Billing details entered")
+            emitAnalyticsEvent(GuestCheckoutEvents.BillingEntered);
         }
 
         if (!isEqualAddress(updatedShippingAddress, shippingAddress)) {

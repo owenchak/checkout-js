@@ -23,7 +23,7 @@ import CheckoutStep from './CheckoutStep';
 import CheckoutStepStatus from './CheckoutStepStatus';
 import CheckoutStepType from './CheckoutStepType';
 import CheckoutSupport from './CheckoutSupport';
-import { AnalyticsEvents } from './AnalyticsEvents';
+import { AnalyticsEvents, GuestCheckoutEvents } from './AnalyticsEvents';
 
 const Billing = lazy(() => retry(() => import(
     /* webpackChunkName: "billing" */
@@ -217,16 +217,16 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         // set a stepComplete state flag so that duplicate events aren't emitted
         // from the navigateToNextStep function
         switch(event) {
-            case "Detail entry began":
+            case GuestCheckoutEvents.DetailEntryBegan:
                 this.setState({ hasDetailEntryBegan: true });
                 break;
-            case "Account lookup button click":
+            case GuestCheckoutEvents.AccountButtonClick:
                 this.setState({ isCustomerEmailComplete: true });
                 break;
-            case "Shipping method step complete":
+            case GuestCheckoutEvents.ShippingComplete:
                 this.setState({ isShippingComplete: true });
                 break;
-            case "Billing details entered":
+            case GuestCheckoutEvents.BillingEntered:
                 this.setState({ isBillingComplete: true });
                 break;
         }
@@ -533,15 +533,15 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
             switch(prevStep.type) {
                 case "customer":
                     if (!hasDetailEntryBegan) {
-                        this.emitAnalyticsEvent("Detail entry began")
+                        this.emitAnalyticsEvent(GuestCheckoutEvents.DetailEntryBegan)
                     }
                     if (!isCustomerEmailComplete) {
                         // if stepping through customer step automatically (saved info) emit all beginning events
-                        this.emitAnalyticsEvent("Account lookup button click")    
-                    }
-                    // if the blue Bolt Checkout button is visible, send "Bolt checkout button exists"
-                    if (isBoltCheckoutButtonRendered) {
-                        this.emitAnalyticsEvent("Bolt checkout button exists")
+                        this.emitAnalyticsEvent(GuestCheckoutEvents.AccountButtonClick)    
+                        // if the blue Bolt Checkout button is visible, send "Bolt checkout button exists"
+                        if (isBoltCheckoutButtonRendered) {
+                            this.emitAnalyticsEvent(GuestCheckoutEvents.BoltButtonExists)
+                        }
                     }
                     break;
                 case "billing":
@@ -550,12 +550,12 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                     if (!isShippingComplete) {
                         const shippingStep = (find(steps, { type: "shipping" }) as CheckoutStepStatus)
                         if (shippingStep && shippingStep.isComplete) {
-                            this.emitAnalyticsEvent("Shipping details fully entered");
-                            this.emitAnalyticsEvent("Shipping method step complete");
+                            this.emitAnalyticsEvent(GuestCheckoutEvents.ShippingEntered);
+                            this.emitAnalyticsEvent(GuestCheckoutEvents.ShippingComplete);
                         }
                     }
                     if (!isBillingComplete) {
-                        this.emitAnalyticsEvent("Billing details entered")
+                        this.emitAnalyticsEvent(GuestCheckoutEvents.BillingEntered)
                     }
                     break;
             }
@@ -600,7 +600,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         const { steps } = this.props;
         const { isBuyNowCartEnabled } = this.state;
 
-        this.emitAnalyticsEvent("Payment complete")
+        this.emitAnalyticsEvent(GuestCheckoutEvents.PaymentSuccessful)
 
         if (this.stepTracker) {
             this.stepTracker.trackStepCompleted(steps[steps.length - 1].type);

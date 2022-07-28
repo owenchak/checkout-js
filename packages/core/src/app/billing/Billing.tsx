@@ -12,6 +12,7 @@ import { LoadingOverlay } from '../ui/loading';
 
 import getBillingMethodId from './getBillingMethodId';
 import BillingForm, { BillingFormValues } from './BillingForm';
+import { GuestCheckoutEvents } from '../checkout/AnalyticsEvents';
 
 export interface BillingProps {
     emitAnalyticsEvent(event: string): void;
@@ -96,7 +97,7 @@ class Billing extends Component<BillingProps & WithCheckoutBillingProps> {
             emitAnalyticsEvent,
         } = this.props;
 
-        emitAnalyticsEvent("Billing details entered");
+        emitAnalyticsEvent(GuestCheckoutEvents.BillingEntered);
 
         const promises: Array<Promise<CheckoutSelectors>> = [];
         const address = mapAddressFromFormValues(addressValues);

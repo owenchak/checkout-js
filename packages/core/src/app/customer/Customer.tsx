@@ -13,6 +13,7 @@ import CustomerViewType from './CustomerViewType';
 import EmailLoginForm, { EmailLoginFormValues } from './EmailLoginForm';
 import GuestForm, { GuestFormValues } from './GuestForm';
 import LoginForm from './LoginForm';
+import { GuestCheckoutEvents } from '../checkout/AnalyticsEvents';
 
 export interface CustomerProps {
     viewType: CustomerViewType;
@@ -409,7 +410,7 @@ class Customer extends Component<CustomerProps & WithCheckoutCustomerProps, Cust
     private handleChangeEmail: (email: string) => void = email => {
         const { emitAnalyticsEvent, hasDetailEntryBegan } = this.props;
         if (!hasDetailEntryBegan) {
-            emitAnalyticsEvent("Detail entry began");
+            emitAnalyticsEvent(GuestCheckoutEvents.DetailEntryBegan);
         }
         this.draftEmail = email;
     };
@@ -429,7 +430,7 @@ class Customer extends Component<CustomerProps & WithCheckoutCustomerProps, Cust
         } = this.props;
 
         if (providerWithCustomCheckout) {
-            emitAnalyticsEvent("Account lookup button click");
+            emitAnalyticsEvent(GuestCheckoutEvents.AccountButtonClick);
             await executePaymentMethodCheckout({ methodId: providerWithCustomCheckout, continueWithCheckoutCallback: onContinueAsGuest });
         } else {
             onContinueAsGuest();

@@ -16,6 +16,7 @@ import mapToOrderRequestBody from './mapToOrderRequestBody';
 import { getUniquePaymentMethodId, PaymentMethodId, PaymentMethodProviderType } from './paymentMethod';
 import PaymentContext from './PaymentContext';
 import PaymentForm, { PaymentFormValues } from './PaymentForm';
+import { GuestCheckoutEvents } from '../checkout/AnalyticsEvents';
 
 export interface PaymentProps {
     isEmbedded?: boolean;
@@ -389,7 +390,7 @@ class Payment extends Component<PaymentProps & WithCheckoutPaymentProps & WithLa
             submitFunctions,
         } = this.state;
 
-        emitAnalyticsEvent("Payment details fully entered")
+        emitAnalyticsEvent(GuestCheckoutEvents.PaymentEntered)
 
         const customSubmit = selectedMethod && submitFunctions[
             getUniquePaymentMethodId(selectedMethod.id, selectedMethod.gateway)
@@ -404,7 +405,7 @@ class Payment extends Component<PaymentProps & WithCheckoutPaymentProps & WithLa
             const order = state.data.getOrder();
             onSubmit(order?.orderId);
         } catch (error) {
-            emitAnalyticsEvent("Payment rejected");
+            emitAnalyticsEvent(GuestCheckoutEvents.PaymentRejected);
             if (error.type === 'payment_method_invalid') {
                 return loadPaymentMethods();
             }
