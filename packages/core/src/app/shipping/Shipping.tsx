@@ -21,6 +21,7 @@ export interface ShippingProps {
     isBillingSameAsShipping: boolean;
     cartHasChanged: boolean;
     isMultiShippingMode: boolean;
+    isShippingDetailsEntered: boolean;
     onCreateAccount(): void;
     onToggleMultiShipping(): void;
     onReady?(): void;
@@ -116,6 +117,7 @@ class Shipping extends Component<ShippingProps & WithCheckoutShippingProps, Ship
 
         const {
             isInitializing,
+            isShippingDetailsEntered,
         } = this.state;
 
         return (
@@ -192,12 +194,15 @@ class Shipping extends Component<ShippingProps & WithCheckoutShippingProps, Ship
             billingAddress,
             methodId,
             emitAnalyticsEvent,
+            isShippingDetailsEntered,
         } = this.props;
 
         const updatedShippingAddress = addressValues && mapAddressFromFormValues(addressValues);
         const promises: Array<Promise<CheckoutSelectors>> = [];
         const hasRemoteBilling = this.hasRemoteBilling(methodId);
-
+        if (!isShippingDetailsEntered) {
+            emitAnalyticsEvent(GuestCheckoutEvents.ShippingEntered);
+        }
         emitAnalyticsEvent(GuestCheckoutEvents.ShippingComplete);
         if (billingSameAsShipping) {
             emitAnalyticsEvent(GuestCheckoutEvents.BillingEntered);

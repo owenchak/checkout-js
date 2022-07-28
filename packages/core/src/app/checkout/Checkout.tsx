@@ -80,6 +80,7 @@ export interface CheckoutState {
     hasDetailEntryBegan: boolean;
     isCustomerEmailComplete: boolean;
     isBoltCheckoutButtonRendered: boolean;
+    isShippingDetailsEntered: boolean;
     isShippingComplete: boolean;
     isBillingComplete: boolean;
 }
@@ -117,6 +118,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         hasDetailEntryBegan: false,
         isCustomerEmailComplete: false,
         isBoltCheckoutButtonRendered: false,
+        isShippingDetailsEntered: false,
         isShippingComplete: false,
         isBillingComplete: false,
     };
@@ -222,6 +224,9 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                 break;
             case GuestCheckoutEvents.AccountButtonClick:
                 this.setState({ isCustomerEmailComplete: true });
+                break;
+            case GuestCheckoutEvents.ShippingEntered:
+                this.setState({ isShippingDetailsEntered: true });
                 break;
             case GuestCheckoutEvents.ShippingComplete:
                 this.setState({ isShippingComplete: true });
@@ -378,6 +383,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         const {
             isBillingSameAsShipping,
             isMultiShippingMode,
+            isShippingDetailsEntered,
         } = this.state;
 
         if (!cart) {
@@ -403,6 +409,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                 <LazyContainer>
                     <Shipping
                         cartHasChanged={ hasCartChanged }
+                        isShippingDetailsEntered={ isShippingDetailsEntered }
                         emitAnalyticsEvent={ this.emitAnalyticsEvent }
                         isBillingSameAsShipping={ isBillingSameAsShipping }
                         isMultiShippingMode={ isMultiShippingMode }
