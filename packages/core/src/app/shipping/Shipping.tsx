@@ -117,7 +117,6 @@ class Shipping extends Component<ShippingProps & WithCheckoutShippingProps, Ship
 
         const {
             isInitializing,
-            isShippingDetailsEntered,
         } = this.state;
 
         return (

@@ -210,10 +210,6 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         }
     }
 
-    private handleBoltCheckoutButtonRendered: () => void = () => {
-        this.setState({ isBoltCheckoutButtonRendered: true })
-    }
-
     private emitAnalyticsEvent: (event:string) => void = (event: string) => {
         // when events are emitted by manually entering details on each step,
         // set a stepComplete state flag so that duplicate events aren't emitted
@@ -344,7 +340,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                 key={ step.type }
                 onEdit={ this.handleEditStep }
                 onExpanded={ this.handleExpanded }
-                suggestion={ <CheckoutSuggestion emitAnalyticsEvent={ this.emitAnalyticsEvent } onBoltRendered={ this.handleBoltCheckoutButtonRendered }/> }
+                suggestion={ <CheckoutSuggestion emitAnalyticsEvent={ this.emitAnalyticsEvent } /> }
                 summary={
                     <CustomerInfo
                         onSignOut={ this.handleSignOut }
@@ -409,10 +405,10 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                 <LazyContainer>
                     <Shipping
                         cartHasChanged={ hasCartChanged }
-                        isShippingDetailsEntered={ isShippingDetailsEntered }
                         emitAnalyticsEvent={ this.emitAnalyticsEvent }
                         isBillingSameAsShipping={ isBillingSameAsShipping }
                         isMultiShippingMode={ isMultiShippingMode }
+                        isShippingDetailsEntered={ isShippingDetailsEntered }
                         navigateNextStep={ this.handleShippingNextStep }
                         onCreateAccount={ this.handleShippingCreateAccount }
                         onReady={ this.handleReady }
@@ -544,11 +540,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                     }
                     if (!isCustomerEmailComplete) {
                         // if stepping through customer step automatically (saved info) emit all beginning events
-                        this.emitAnalyticsEvent(GuestCheckoutEvents.AccountButtonClick)    
-                        // if the blue Bolt Checkout button is visible, send "Bolt checkout button exists"
-                        if (isBoltCheckoutButtonRendered) {
-                            this.emitAnalyticsEvent(GuestCheckoutEvents.BoltButtonExists)
-                        }
+                        this.emitAnalyticsEvent(GuestCheckoutEvents.AccountButtonClick)
                     }
                     break;
                 case "billing":

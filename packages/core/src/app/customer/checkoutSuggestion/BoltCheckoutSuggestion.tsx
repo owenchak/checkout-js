@@ -37,6 +37,9 @@ const BoltCheckoutSuggestion: FunctionComponent<BoltCheckoutSuggestionProps> = (
                 methodId,
                 bolt: {
                     onInit: hasBoltAccount => {
+                        if (hasBoltAccount) {
+                            emitAnalyticsEvent(GuestCheckoutEvents.BoltButtonExists);
+                        }
                         setShowSuggestion(hasBoltAccount);
                     },
                 },
