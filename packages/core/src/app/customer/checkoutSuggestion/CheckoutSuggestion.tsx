@@ -1,5 +1,5 @@
 import { CheckoutSelectors, CustomerInitializeOptions, CustomerRequestOptions, ExecutePaymentMethodCheckoutOptions } from '@bigcommerce/checkout-sdk';
-import React, { memo, FunctionComponent } from 'react';
+import React, { memo, FunctionComponent, useEffect } from 'react';
 
 import { withCheckout, CheckoutContextProps } from '../../checkout';
 import { PaymentMethodId } from '../../payment/paymentMethod';
@@ -8,6 +8,8 @@ import BoltCheckoutSuggestion from './BoltCheckoutSuggestion';
 
 export interface CheckoutSuggestionProps {
     onUnhandledError?(error: Error): void;
+    onBoltRendered(): void;
+    emitAnalyticsEvent(event: string): void;
 }
 
 export interface WithCheckoutSuggestionsProps {
@@ -20,8 +22,15 @@ export interface WithCheckoutSuggestionsProps {
 
 const CheckoutSuggestion: FunctionComponent<WithCheckoutSuggestionsProps & CheckoutSuggestionProps> = ({
    providerWithCustomCheckout,
+   onBoltRendered,
    ...rest
 }) => {
+    useEffect(() => {
+        if(providerWithCustomCheckout === PaymentMethodId.Bolt) {
+            onBoltRendered();
+        }
+    }, [providerWithCustomCheckout, onBoltRendered]);
+
     if (providerWithCustomCheckout === PaymentMethodId.Bolt) {
         return <BoltCheckoutSuggestion methodId={ providerWithCustomCheckout } { ...rest } />;
     }

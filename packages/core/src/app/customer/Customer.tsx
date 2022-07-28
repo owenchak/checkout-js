@@ -27,6 +27,7 @@ export interface CustomerProps {
     onSignInError?(error: Error): void;
     onUnhandledError?(error: Error): void;
     emitAnalyticsEvent(event: string): void;
+    hasDetailEntryBegan: boolean;
 }
 
 export interface WithCheckoutCustomerProps {
@@ -67,7 +68,6 @@ export interface CustomerState {
     isEmailLoginFormOpen: boolean;
     isReady: boolean;
     hasRequestedLoginEmail: boolean;
-    hasInputEmail: boolean;
 }
 
 class Customer extends Component<CustomerProps & WithCheckoutCustomerProps, CustomerState> {
@@ -75,7 +75,6 @@ class Customer extends Component<CustomerProps & WithCheckoutCustomerProps, Cust
         isEmailLoginFormOpen: false,
         isReady: false,
         hasRequestedLoginEmail: false,
-        hasInputEmail: false,
     };
 
     private draftEmail?: string;
@@ -408,11 +407,9 @@ class Customer extends Component<CustomerProps & WithCheckoutCustomerProps, Cust
     };
 
     private handleChangeEmail: (email: string) => void = email => {
-        const { hasInputEmail } = this.state;
-        const { emitAnalyticsEvent } = this.props;
-        if (!hasInputEmail) {
+        const { emitAnalyticsEvent, hasDetailEntryBegan } = this.props;
+        if (!hasDetailEntryBegan) {
             emitAnalyticsEvent("Detail entry began");
-            this.setState({ hasInputEmail: true });
         }
         this.draftEmail = email;
     };

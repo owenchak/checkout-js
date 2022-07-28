@@ -14,6 +14,7 @@ export interface BoltCheckoutSuggestionProps {
     executePaymentMethodCheckout(options: ExecutePaymentMethodCheckoutOptions): Promise<CheckoutSelectors>;
     initializeCustomer(options: CustomerInitializeOptions): Promise<CheckoutSelectors>;
     onUnhandledError?(error: Error): void;
+    emitAnalyticsEvent(event: string): void;
 }
 
 const BoltCheckoutSuggestion: FunctionComponent<BoltCheckoutSuggestionProps> = ({
@@ -23,6 +24,7 @@ const BoltCheckoutSuggestion: FunctionComponent<BoltCheckoutSuggestionProps> = (
     executePaymentMethodCheckout,
     initializeCustomer,
     onUnhandledError = noop,
+    emitAnalyticsEvent,
 }) => {
     const [ showSuggestion, setShowSuggestion ] = useState<boolean>(false);
 
@@ -52,6 +54,7 @@ const BoltCheckoutSuggestion: FunctionComponent<BoltCheckoutSuggestionProps> = (
     }
 
     const handleActionClick = async () => {
+        emitAnalyticsEvent("Bolt checkout button clicked");
         await executePaymentMethodCheckout({ methodId });
     };
 

@@ -77,7 +77,9 @@ export interface CheckoutState {
     isRedirecting: boolean;
     hasSelectedShippingOptions: boolean;
     isBuyNowCartEnabled: boolean;
+    hasDetailEntryBegan: boolean;
     isCustomerEmailComplete: boolean;
+    isBoltCheckoutButtonRendered: boolean;
     isShippingComplete: boolean;
     isBillingComplete: boolean;
 }
@@ -112,7 +114,9 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         isMultiShippingMode: false,
         hasSelectedShippingOptions: false,
         isBuyNowCartEnabled: false,
+        hasDetailEntryBegan: false,
         isCustomerEmailComplete: false,
+        isBoltCheckoutButtonRendered: false,
         isShippingComplete: false,
         isBillingComplete: false,
     };
@@ -204,11 +208,18 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         }
     }
 
+    private handleBoltCheckoutButtonRendered: () => void = () => {
+        this.setState({ isBoltCheckoutButtonRendered: true })
+    }
+
     private emitAnalyticsEvent: (event:string) => void = (event: string) => {
         // when events are emitted by manually entering details on each step,
         // set a stepComplete state flag so that duplicate events aren't emitted
         // from the navigateToNextStep function
         switch(event) {
+            case "Detail entry began":
+                this.setState({ hasDetailEntryBegan: true });
+                break;
             case "Account lookup button click":
                 this.setState({ isCustomerEmailComplete: true });
                 break;
@@ -318,6 +329,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
 
         const {
             customerViewType = isGuestEnabled ? CustomerViewType.Guest : CustomerViewType.Login,
+            hasDetailEntryBegan,
         } = this.state;
 
         return (
@@ -327,7 +339,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                 key={ step.type }
                 onEdit={ this.handleEditStep }
                 onExpanded={ this.handleExpanded }
-                suggestion={ <CheckoutSuggestion /> }
+                suggestion={ <CheckoutSuggestion emitAnalyticsEvent={ this.emitAnalyticsEvent } onBoltRendered={ this.handleBoltCheckoutButtonRendered }/> }
                 summary={
                     <CustomerInfo
                         onSignOut={ this.handleSignOut }
@@ -339,6 +351,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                     <Customer
                         checkEmbeddedSupport={ this.checkEmbeddedSupport }
                         emitAnalyticsEvent={ this.emitAnalyticsEvent }
+                        hasDetailEntryBegan={ hasDetailEntryBegan }
                         isEmbedded={ isEmbedded() }
                         onAccountCreated={ this.navigateToNextIncompleteStep }
                         onChangeViewType={ this.setCustomerViewType }
@@ -485,7 +498,9 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         const { clearError, error, steps } = this.props;
         const {
             activeStepType,
+            hasDetailEntryBegan,
             isCustomerEmailComplete,
+            isBoltCheckoutButtonRendered,
             isShippingComplete,
             isBillingComplete
         } = this.state;
@@ -500,8 +515,8 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         }
 
         const nextStepIndex = findIndex(steps, { type })
-        const prevStepIndex = nextStepIndex - 1;
-        const prevStep = prevStepIndex >= 0 && steps[prevStepIndex];
+        let prevStepIndex = nextStepIndex - 1;
+        let prevStep = prevStepIndex >= 0 && steps[prevStepIndex];
 
         /**
          * BOLT ANALYTICS
@@ -509,13 +524,24 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
          * Events will still be emitted from the individual steps and will set completion state flags
          * so that when this block runs during step transitions, we don't emit duplicate events.
          */
+        // skip previous steps that aren't required (e.g. shipping is not required for carts with only digital products)
+        while (prevStepIndex > 0 && prevStep && !prevStep.isRequired) {
+            prevStep = steps[--prevStepIndex];
+        }
+
         if (prevStep && prevStep.isComplete) {
             switch(prevStep.type) {
                 case "customer":
+                    if (!hasDetailEntryBegan) {
+                        this.emitAnalyticsEvent("Detail entry began")
+                    }
                     if (!isCustomerEmailComplete) {
                         // if stepping through customer step automatically (saved info) emit all beginning events
-                        this.emitAnalyticsEvent("Detail entry began")
-                        this.emitAnalyticsEvent("Account lookup button click")
+                        this.emitAnalyticsEvent("Account lookup button click")    
+                    }
+                    // if the blue Bolt Checkout button is visible, send "Bolt checkout button exists"
+                    if (isBoltCheckoutButtonRendered) {
+                        this.emitAnalyticsEvent("Bolt checkout button exists")
                     }
                     break;
                 case "billing":
