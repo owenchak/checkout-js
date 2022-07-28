@@ -13,6 +13,7 @@ import CustomerViewType from './CustomerViewType';
 import EmailLoginForm, { EmailLoginFormValues } from './EmailLoginForm';
 import GuestForm, { GuestFormValues } from './GuestForm';
 import LoginForm from './LoginForm';
+import { GuestCheckoutEvents } from '../checkout/AnalyticsEvents';
 
 export interface CustomerProps {
     viewType: CustomerViewType;
@@ -27,6 +28,7 @@ export interface CustomerProps {
     onSignInError?(error: Error): void;
     onUnhandledError?(error: Error): void;
     emitAnalyticsEvent(event: string): void;
+    hasDetailEntryBegan: boolean;
 }
 
 export interface WithCheckoutCustomerProps {
@@ -67,7 +69,6 @@ export interface CustomerState {
     isEmailLoginFormOpen: boolean;
     isReady: boolean;
     hasRequestedLoginEmail: boolean;
-    hasInputEmail: boolean;
 }
 
 class Customer extends Component<CustomerProps & WithCheckoutCustomerProps, CustomerState> {
@@ -75,7 +76,6 @@ class Customer extends Component<CustomerProps & WithCheckoutCustomerProps, Cust
         isEmailLoginFormOpen: false,
         isReady: false,
         hasRequestedLoginEmail: false,
-        hasInputEmail: false,
     };
 
     private draftEmail?: string;
@@ -408,11 +408,9 @@ class Customer extends Component<CustomerProps & WithCheckoutCustomerProps, Cust
     };
 
     private handleChangeEmail: (email: string) => void = email => {
-        const { hasInputEmail } = this.state;
-        const { emitAnalyticsEvent } = this.props;
-        if (!hasInputEmail) {
-            emitAnalyticsEvent("Detail entry began");
-            this.setState({ hasInputEmail: true });
+        const { emitAnalyticsEvent, hasDetailEntryBegan } = this.props;
+        if (!hasDetailEntryBegan) {
+            emitAnalyticsEvent(GuestCheckoutEvents.DetailEntryBegan);
         }
         this.draftEmail = email;
     };
@@ -432,7 +430,7 @@ class Customer extends Component<CustomerProps & WithCheckoutCustomerProps, Cust
         } = this.props;
 
         if (providerWithCustomCheckout) {
-            emitAnalyticsEvent("Account lookup button click");
+            emitAnalyticsEvent(GuestCheckoutEvents.AccountButtonClick);
             await executePaymentMethodCheckout({ methodId: providerWithCustomCheckout, continueWithCheckoutCallback: onContinueAsGuest });
         } else {
             onContinueAsGuest();

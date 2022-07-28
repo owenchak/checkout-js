@@ -23,7 +23,7 @@ import CheckoutStep from './CheckoutStep';
 import CheckoutStepStatus from './CheckoutStepStatus';
 import CheckoutStepType from './CheckoutStepType';
 import CheckoutSupport from './CheckoutSupport';
-import { AnalyticsEvents } from './AnalyticsEvents';
+import { AnalyticsEvents, GuestCheckoutEvents } from './AnalyticsEvents';
 
 const Billing = lazy(() => retry(() => import(
     /* webpackChunkName: "billing" */
@@ -77,7 +77,10 @@ export interface CheckoutState {
     isRedirecting: boolean;
     hasSelectedShippingOptions: boolean;
     isBuyNowCartEnabled: boolean;
+    hasDetailEntryBegan: boolean;
     isCustomerEmailComplete: boolean;
+    isBoltCheckoutButtonRendered: boolean;
+    isShippingDetailsEntered: boolean;
     isShippingComplete: boolean;
     isBillingComplete: boolean;
 }
@@ -112,7 +115,10 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         isMultiShippingMode: false,
         hasSelectedShippingOptions: false,
         isBuyNowCartEnabled: false,
+        hasDetailEntryBegan: false,
         isCustomerEmailComplete: false,
+        isBoltCheckoutButtonRendered: false,
+        isShippingDetailsEntered: false,
         isShippingComplete: false,
         isBillingComplete: false,
     };
@@ -209,13 +215,19 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         // set a stepComplete state flag so that duplicate events aren't emitted
         // from the navigateToNextStep function
         switch(event) {
-            case "Account lookup button click":
+            case GuestCheckoutEvents.DetailEntryBegan:
+                this.setState({ hasDetailEntryBegan: true });
+                break;
+            case GuestCheckoutEvents.AccountButtonClick:
                 this.setState({ isCustomerEmailComplete: true });
                 break;
-            case "Shipping method step complete":
+            case GuestCheckoutEvents.ShippingEntered:
+                this.setState({ isShippingDetailsEntered: true });
+                break;
+            case GuestCheckoutEvents.ShippingComplete:
                 this.setState({ isShippingComplete: true });
                 break;
-            case "Billing details entered":
+            case GuestCheckoutEvents.BillingEntered:
                 this.setState({ isBillingComplete: true });
                 break;
         }
@@ -318,6 +330,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
 
         const {
             customerViewType = isGuestEnabled ? CustomerViewType.Guest : CustomerViewType.Login,
+            hasDetailEntryBegan,
         } = this.state;
 
         return (
@@ -327,7 +340,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                 key={ step.type }
                 onEdit={ this.handleEditStep }
                 onExpanded={ this.handleExpanded }
-                suggestion={ <CheckoutSuggestion /> }
+                suggestion={ <CheckoutSuggestion emitAnalyticsEvent={ this.emitAnalyticsEvent } /> }
                 summary={
                     <CustomerInfo
                         onSignOut={ this.handleSignOut }
@@ -339,6 +352,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                     <Customer
                         checkEmbeddedSupport={ this.checkEmbeddedSupport }
                         emitAnalyticsEvent={ this.emitAnalyticsEvent }
+                        hasDetailEntryBegan={ hasDetailEntryBegan }
                         isEmbedded={ isEmbedded() }
                         onAccountCreated={ this.navigateToNextIncompleteStep }
                         onChangeViewType={ this.setCustomerViewType }
@@ -365,6 +379,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         const {
             isBillingSameAsShipping,
             isMultiShippingMode,
+            isShippingDetailsEntered,
         } = this.state;
 
         if (!cart) {
@@ -393,6 +408,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                         emitAnalyticsEvent={ this.emitAnalyticsEvent }
                         isBillingSameAsShipping={ isBillingSameAsShipping }
                         isMultiShippingMode={ isMultiShippingMode }
+                        isShippingDetailsEntered={ isShippingDetailsEntered }
                         navigateNextStep={ this.handleShippingNextStep }
                         onCreateAccount={ this.handleShippingCreateAccount }
                         onReady={ this.handleReady }
@@ -485,7 +501,9 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         const { clearError, error, steps } = this.props;
         const {
             activeStepType,
+            hasDetailEntryBegan,
             isCustomerEmailComplete,
+            isShippingDetailsEntered,
             isShippingComplete,
             isBillingComplete
         } = this.state;
@@ -509,27 +527,33 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
          * Events will still be emitted from the individual steps and will set completion state flags
          * so that when this block runs during step transitions, we don't emit duplicate events.
          */
+
         if (prevStep && prevStep.isComplete) {
+            let shippingStep;
             switch(prevStep.type) {
                 case "customer":
+                    if (!hasDetailEntryBegan) {
+                        this.emitAnalyticsEvent(GuestCheckoutEvents.DetailEntryBegan)
+                    }
                     if (!isCustomerEmailComplete) {
                         // if stepping through customer step automatically (saved info) emit all beginning events
-                        this.emitAnalyticsEvent("Detail entry began")
-                        this.emitAnalyticsEvent("Account lookup button click")
+                        this.emitAnalyticsEvent(GuestCheckoutEvents.AccountButtonClick)
                     }
                     break;
                 case "billing":
                     // for some reason "shipping" is *never* a previous step,
                     // so checking for shipping status when billing is the previous step
-                    if (!isShippingComplete) {
-                        const shippingStep = (find(steps, { type: "shipping" }) as CheckoutStepStatus)
-                        if (shippingStep && shippingStep.isComplete) {
-                            this.emitAnalyticsEvent("Shipping details fully entered");
-                            this.emitAnalyticsEvent("Shipping method step complete");
+                    shippingStep = find(steps, { type: "shipping" }) as CheckoutStepStatus
+                    if (shippingStep && shippingStep.isComplete) {
+                        if (!isShippingDetailsEntered) {
+                            this.emitAnalyticsEvent(GuestCheckoutEvents.ShippingEntered);
+                        }
+                        if (!isShippingComplete) {
+                            this.emitAnalyticsEvent(GuestCheckoutEvents.ShippingComplete);
                         }
                     }
                     if (!isBillingComplete) {
-                        this.emitAnalyticsEvent("Billing details entered")
+                        this.emitAnalyticsEvent(GuestCheckoutEvents.BillingEntered)
                     }
                     break;
             }
@@ -574,7 +598,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         const { steps } = this.props;
         const { isBuyNowCartEnabled } = this.state;
 
-        this.emitAnalyticsEvent("Payment complete")
+        this.emitAnalyticsEvent(GuestCheckoutEvents.PaymentSuccessful)
 
         if (this.stepTracker) {
             this.stepTracker.trackStepCompleted(steps[steps.length - 1].type);

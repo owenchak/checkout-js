@@ -14,6 +14,7 @@ import BillingSameAsShippingField from './BillingSameAsShippingField';
 import ShippingAddress from './ShippingAddress';
 import { SHIPPING_ADDRESS_FIELDS } from './ShippingAddressFields';
 import ShippingFormFooter from './ShippingFormFooter';
+import { GuestCheckoutEvents } from '../checkout/AnalyticsEvents';
 
 export interface SingleShippingFormProps {
     addresses: CustomerAddress[];
@@ -88,7 +89,7 @@ class SingleShippingForm extends PureComponent<SingleShippingFormProps & WithLan
                 });
                 if (includeShippingOptions) {
                     if (!this.state.hasLoadedShippingOptions) {
-                        emitAnalyticsEvent("Shipping details fully entered");
+                        emitAnalyticsEvent(GuestCheckoutEvents.ShippingEntered);
                         this.setState({ hasLoadedShippingOptions: true });
                     }
                     this.setState({ hasRequestedShippingOptions: true });

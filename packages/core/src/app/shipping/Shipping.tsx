@@ -5,6 +5,7 @@ import { createSelector } from 'reselect';
 
 import { isEqualAddress, mapAddressFromFormValues } from '../address';
 import { withCheckout, CheckoutContextProps } from '../checkout';
+import { GuestCheckoutEvents } from '../checkout/AnalyticsEvents';
 import { EMPTY_ARRAY } from '../common/utility';
 import { LoadingOverlay } from '../ui/loading';
 
@@ -20,6 +21,7 @@ export interface ShippingProps {
     isBillingSameAsShipping: boolean;
     cartHasChanged: boolean;
     isMultiShippingMode: boolean;
+    isShippingDetailsEntered: boolean;
     onCreateAccount(): void;
     onToggleMultiShipping(): void;
     onReady?(): void;
@@ -191,15 +193,18 @@ class Shipping extends Component<ShippingProps & WithCheckoutShippingProps, Ship
             billingAddress,
             methodId,
             emitAnalyticsEvent,
+            isShippingDetailsEntered,
         } = this.props;
 
         const updatedShippingAddress = addressValues && mapAddressFromFormValues(addressValues);
         const promises: Array<Promise<CheckoutSelectors>> = [];
         const hasRemoteBilling = this.hasRemoteBilling(methodId);
-
-        emitAnalyticsEvent("Shipping method step complete");
+        if (!isShippingDetailsEntered) {
+            emitAnalyticsEvent(GuestCheckoutEvents.ShippingEntered);
+        }
+        emitAnalyticsEvent(GuestCheckoutEvents.ShippingComplete);
         if (billingSameAsShipping) {
-            emitAnalyticsEvent("Billing details entered")
+            emitAnalyticsEvent(GuestCheckoutEvents.BillingEntered);
         }
 
         if (!isEqualAddress(updatedShippingAddress, shippingAddress)) {

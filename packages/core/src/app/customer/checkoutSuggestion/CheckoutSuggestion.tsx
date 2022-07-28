@@ -8,6 +8,7 @@ import BoltCheckoutSuggestion from './BoltCheckoutSuggestion';
 
 export interface CheckoutSuggestionProps {
     onUnhandledError?(error: Error): void;
+    emitAnalyticsEvent(event: string): void;
 }
 
 export interface WithCheckoutSuggestionsProps {

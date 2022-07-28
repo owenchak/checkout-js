@@ -1,6 +1,7 @@
 import { CheckoutSelectors, CustomerInitializeOptions, CustomerRequestOptions, ExecutePaymentMethodCheckoutOptions } from '@bigcommerce/checkout-sdk';
 import { noop } from 'lodash';
 import React, { memo, useEffect, useState, FunctionComponent } from 'react';
+import { GuestCheckoutEvents } from '../../checkout/AnalyticsEvents';
 
 import { stopPropagation } from '../../common/dom';
 import { TranslatedString } from '../../locale';
@@ -14,6 +15,7 @@ export interface BoltCheckoutSuggestionProps {
     executePaymentMethodCheckout(options: ExecutePaymentMethodCheckoutOptions): Promise<CheckoutSelectors>;
     initializeCustomer(options: CustomerInitializeOptions): Promise<CheckoutSelectors>;
     onUnhandledError?(error: Error): void;
+    emitAnalyticsEvent(event: string): void;
 }
 
 const BoltCheckoutSuggestion: FunctionComponent<BoltCheckoutSuggestionProps> = ({
@@ -23,6 +25,7 @@ const BoltCheckoutSuggestion: FunctionComponent<BoltCheckoutSuggestionProps> = (
     executePaymentMethodCheckout,
     initializeCustomer,
     onUnhandledError = noop,
+    emitAnalyticsEvent,
 }) => {
     const [ showSuggestion, setShowSuggestion ] = useState<boolean>(false);
 
@@ -34,6 +37,9 @@ const BoltCheckoutSuggestion: FunctionComponent<BoltCheckoutSuggestionProps> = (
                 methodId,
                 bolt: {
                     onInit: hasBoltAccount => {
+                        if (hasBoltAccount) {
+                            emitAnalyticsEvent(GuestCheckoutEvents.BoltButtonExists);
+                        }
                         setShowSuggestion(hasBoltAccount);
                     },
                 },
@@ -52,6 +58,7 @@ const BoltCheckoutSuggestion: FunctionComponent<BoltCheckoutSuggestionProps> = (
     }
 
     const handleActionClick = async () => {
+        emitAnalyticsEvent(GuestCheckoutEvents.BoltButtonClicked);
         await executePaymentMethodCheckout({ methodId });
     };
 
