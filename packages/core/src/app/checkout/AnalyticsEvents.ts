@@ -16,7 +16,7 @@ export enum GuestCheckoutEvents {
   BillingEntered = "Billing details entered",
   PaymentEntered = "Payment details entered",
   PaymentRejected = "Payment rejected",
-  PaymentSuccessful = "Payment successful",
+  PaymentComplete = "Payment complete",
   Exit = "Exit"
 }
 

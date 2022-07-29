@@ -2,6 +2,7 @@ export declare enum GuestCheckoutEvents {
     CheckoutLoadSuccess = "Checkout load success",
     DetailEntryBegan = "Detail entry began",
     AccountButtonClick = "Account lookup button click",
+    AccountLookupSkipped = "Account lookup skipped",
     BoltButtonExists = "Bolt recognized button rendered",
     BoltButtonClicked = "Bolt recognized button clicked",
     ShippingEntered = "Shipping details fully entered",
@@ -9,7 +10,7 @@ export declare enum GuestCheckoutEvents {
     BillingEntered = "Billing details entered",
     PaymentEntered = "Payment details entered",
     PaymentRejected = "Payment rejected",
-    PaymentSuccessful = "Payment successful",
+    PaymentComplete = "Payment complete",
     Exit = "Exit"
 }
 export declare const AnalyticsEvents: {
