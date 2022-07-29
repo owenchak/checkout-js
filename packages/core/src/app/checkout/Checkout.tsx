@@ -605,7 +605,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         const { steps } = this.props;
         const { isBuyNowCartEnabled } = this.state;
 
-        this.emitAnalyticsEvent(GuestCheckoutEvents.PaymentSuccessful)
+        this.emitAnalyticsEvent(GuestCheckoutEvents.PaymentComplete)
 
         if (this.stepTracker) {
             this.stepTracker.trackStepCompleted(steps[steps.length - 1].type);
