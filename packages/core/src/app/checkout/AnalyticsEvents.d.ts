@@ -8,7 +8,7 @@ export declare enum GuestCheckoutEvents {
     ShippingEntered = "Shipping details fully entered",
     ShippingComplete = "Shipping method step complete",
     BillingEntered = "Billing details entered",
-    PaymentEntered = "Payment details entered",
+    PaymentEntered = "Payment details fully entered",
     PaymentRejected = "Payment rejected",
     PaymentComplete = "Payment complete",
     Exit = "Exit"
