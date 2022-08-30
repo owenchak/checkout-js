@@ -1,10 +1,10 @@
+import { PaymentMethodProps } from '@bigcommerce/checkout/payment-integration-api';
 import { createCheckoutService, CheckoutService, PaymentMethod } from '@bigcommerce/checkout-sdk';
 import { mount } from 'enzyme';
 import { Formik } from 'formik';
 import React, { FunctionComponent, ReactNode } from 'react';
 
 import { CheckoutProvider } from '../../checkout';
-import { PaymentMethodProps } from '../../core/paymentIntegration';
 import { LocaleProvider } from '../../locale';
 import { FormProvider } from '../../ui/form';
 import { getPaymentMethod } from '../payment-methods.mock';
@@ -80,6 +80,30 @@ describe('PaymentMethod', () => {
         expect(componentA.find(Foo))
             .toBeDefined();
         expect(componentB.find(Bar))
+            .toBeDefined();
+    });
+
+    it('returns payment method v1 if cannot resolve', () => {
+        const Foo: FunctionComponent<PaymentMethodProps> = ({ method }) => <div>{ method.id }</div>;
+
+        const resolver = (method: PaymentMethod) => {
+            return method.id === 'foo' ? Foo : undefined;
+        };
+
+        const componentFallback = mount(
+            <ContextProvider>
+                <PaymentMethodComponent
+                    method={ {
+                        ...getPaymentMethod(),
+                        id: 'test',
+                    } }
+                    onUnhandledError={ jest.fn() }
+                    resolveComponent={ resolver }
+                />
+            </ContextProvider>
+        );
+
+        expect(componentFallback.find(Foo))
             .toBeDefined();
     });
 });

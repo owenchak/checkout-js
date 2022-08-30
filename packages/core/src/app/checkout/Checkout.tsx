@@ -94,7 +94,9 @@ export interface WithCheckoutProps {
     isGuestEnabled: boolean;
     isLoadingCheckout: boolean;
     isPending: boolean;
+    isPriceHiddenFromGuests: boolean;
     loginUrl: string;
+    cartUrl: string;
     createAccountUrl: string;
     canCreateAccountInCheckout: boolean;
     promotions?: Promotion[];
@@ -448,6 +450,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         const {
             consignments,
             cart,
+            errorLogger,
         } = this.props;
 
         return (
@@ -462,6 +465,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                     <Payment
                         checkEmbeddedSupport={ this.checkEmbeddedSupport }
                         emitAnalyticsEvent={ this.emitAnalyticsEvent }
+                        errorLogger= { errorLogger }
                         isEmbedded={ isEmbedded() }
                         isUsingMultiShipping={ cart && consignments ? isUsingMultiShipping(consignments, cart.lineItems) : false }
                         onCartChangedError={ this.handleCartChangedError }
@@ -688,7 +692,11 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
     };
 
     private handleSignOut: (event: CustomerSignOutEvent) => void = ({ isCartEmpty }) => {
-        const { loginUrl, isGuestEnabled } = this.props;
+        const { loginUrl, cartUrl, isPriceHiddenFromGuests, isGuestEnabled } = this.props;
+
+        if (isPriceHiddenFromGuests) {
+            return window.top.location.href = cartUrl;
+        }
 
         if (this.embeddedMessenger) {
             this.embeddedMessenger.postSignedOut();

@@ -1,3 +1,4 @@
+import { PaymentFormValues } from '@bigcommerce/checkout/payment-integration-api';
 import { AccountInstrument, CardInstrument, CheckoutSelectors, CustomerInitializeOptions, CustomerRequestOptions, Instrument, PaymentInitializeOptions, PaymentInstrument, PaymentMethod, PaymentRequestOptions } from '@bigcommerce/checkout-sdk';
 import { memoizeOne } from '@bigcommerce/memoize';
 import classNames from 'classnames';
@@ -13,10 +14,8 @@ import { TranslatedString } from '../../locale';
 import { LoadingOverlay } from '../../ui/loading';
 import { isBankAccountInstrument, isCardInstrument, isInstrumentCardCodeRequiredSelector, isInstrumentCardNumberRequiredSelector, isInstrumentFeatureAvailable, AccountInstrumentFieldset, CardInstrumentFieldset } from '../storedInstrument';
 import withPayment, { WithPaymentProps } from '../withPayment';
-import { PaymentFormValues } from '../PaymentForm';
 import StoreInstrumentFieldset from '../StoreInstrumentFieldset';
 
-import { CreditCardPaymentMethodValues } from './CreditCardPaymentMethod';
 import SignOutLink from './SignOutLink';
 
 export interface HostedWidgetPaymentMethodProps {
@@ -37,7 +36,7 @@ export interface HostedWidgetPaymentMethodProps {
     shouldShowDescriptor?: boolean;
     shouldShowEditButton?: boolean;
     shouldRenderCustomInstrument?: boolean;
-    storedCardValidationSchema?: ObjectSchema<CreditCardPaymentMethodValues>;
+    storedCardValidationSchema?: ObjectSchema;
     renderCustomPaymentForm?(): React.ReactNode;
     validateInstrument?(shouldShowNumberField: boolean, selectedInstrument?: CardInstrument): React.ReactNode;
     deinitializeCustomer?(options: CustomerRequestOptions): Promise<CheckoutSelectors>;
@@ -286,7 +285,7 @@ class HostedWidgetPaymentMethod extends Component<
         );
     }
 
-    private getValidationSchema(): ObjectSchema<CreditCardPaymentMethodValues> | null {
+    private getValidationSchema(): ObjectSchema | null {
         const {
             isInstrumentFeatureAvailable: isInstrumentFeatureAvailableProp,
             isPaymentDataRequired,

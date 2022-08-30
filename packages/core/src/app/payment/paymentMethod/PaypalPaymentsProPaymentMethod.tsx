@@ -6,7 +6,7 @@ import { EMPTY_ARRAY } from '../../common/utility';
 import HostedCreditCardPaymentMethod, { HostedCreditCardPaymentMethodProps } from './HostedCreditCardPaymentMethod';
 import HostedPaymentMethod, { HostedPaymentMethodProps } from './HostedPaymentMethod';
 import { PaymentMethodProps } from './PaymentMethod';
-import PaymentMethodProviderType from './PaymentMethodProviderType';
+import PaymentMethodProviderType from "./PaymentMethodProviderType";
 
 export type PaypalPaymentsProPaymentMethodProps = HostedPaymentMethodProps | HostedCreditCardPaymentMethodProps;
 

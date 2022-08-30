@@ -1,9 +1,9 @@
+import { PaymentFormValues } from '@bigcommerce/checkout/payment-integration-api';
 import React, { useCallback, useContext, FunctionComponent } from 'react';
 
 import { connectFormik, ConnectFormikProps } from '../../common/form';
 import { FormContext } from '../../ui/form';
 import PaymentContext from '../PaymentContext';
-import { PaymentFormValues } from '../PaymentForm';
 
 import HostedWidgetPaymentMethod, { HostedWidgetPaymentMethodProps } from './HostedWidgetPaymentMethod';
 

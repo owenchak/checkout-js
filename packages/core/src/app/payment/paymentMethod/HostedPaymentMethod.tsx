@@ -1,4 +1,5 @@
 import { AccountInstrument, CheckoutSelectors, PaymentInitializeOptions, PaymentInstrument, PaymentMethod, PaymentRequestOptions } from '@bigcommerce/checkout-sdk';
+import { PaymentFormValues } from '@bigcommerce/checkout/payment-integration-api';
 import { memoizeOne } from '@bigcommerce/memoize';
 import { find, noop } from 'lodash';
 import React, { Component, ReactNode } from 'react';
@@ -10,7 +11,6 @@ import { withLanguage, WithLanguageProps } from '../../locale';
 import { LoadingOverlay } from '../../ui/loading';
 import { isAccountInstrument, isInstrumentFeatureAvailable, AccountInstrumentFieldset } from '../storedInstrument';
 import withPayment, { WithPaymentProps } from '../withPayment';
-import { PaymentFormValues } from '../PaymentForm';
 import StoreInstrumentFieldset from '../StoreInstrumentFieldset';
 
 export interface HostedPaymentMethodProps {

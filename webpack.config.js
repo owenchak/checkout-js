@@ -7,8 +7,11 @@ const StyleLintPlugin = require('stylelint-webpack-plugin');
 const { DefinePlugin } = require('webpack');
 const WebpackAssetsManifest = require('webpack-assets-manifest');
 
-const { AsyncHookPlugin, BuildHookPlugin, autoExport, getNextVersion, transformManifest } = require('./scripts/webpack');
-const autoExportConfig = require('./auto-export.config.json');
+const { AsyncHookPlugin,
+    BuildHookPlugin,
+    getLoaderPackages: { aliasMap: alias, tsLoaderIncludes },
+    getNextVersion,
+    transformManifest } = require('./scripts/webpack');
 
 const ENTRY_NAME = 'checkout';
 const LIBRARY_NAME = 'checkout';
@@ -49,6 +52,7 @@ function appConfig(options, argv) {
                 mode,
                 devtool: isProduction ? 'source-map' : 'eval-source-map',
                 resolve: {
+                    alias,
                     extensions: ['.ts', '.tsx', '.js'],
                     // It seems some packages, i.e.: Formik, have incorrect
                     // source maps for their ESM bundle. Therefore, until that
@@ -130,9 +134,6 @@ function appConfig(options, argv) {
                         onError(errors) {
                             eventEmitter.emit('app:error', errors);
                         },
-                        onBeforeCompile() {
-                            return Promise.all(autoExportConfig.entries.map(autoExport));
-                        },
                     }),
                 ].filter(Boolean),
                 module: {
@@ -144,7 +145,7 @@ function appConfig(options, argv) {
                         },
                         {
                             test: /\.tsx?$/,
-                            include: join(__dirname, 'packages', 'core','src'),
+                            include: tsLoaderIncludes,
                             use: [
                                 {
                                     loader: 'ts-loader',

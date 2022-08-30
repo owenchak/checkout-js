@@ -3,9 +3,9 @@ import { memoize } from '@bigcommerce/memoize';
 import { cvv, number } from 'card-validator';
 import creditCardType from 'credit-card-type';
 import { object, string, ObjectSchema, StringSchema } from 'yup';
+import CardInstrumentFieldsetValues from './CardInstrumentFieldsetValues';
 
 import mapFromInstrumentCardType from './mapFromInstrumentCardType';
-import { CardInstrumentFieldsetValues } from './CardInstrumentFieldset';
 
 export interface InstrumentValidationSchemaOptions {
     instrumentBrand: string;

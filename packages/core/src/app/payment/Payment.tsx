@@ -1,3 +1,4 @@
+import { PaymentFormValues } from '@bigcommerce/checkout/payment-integration-api';
 import { CartChangedError, CheckoutSelectors, CheckoutSettings, OrderRequestBody, PaymentMethod } from '@bigcommerce/checkout-sdk';
 import { memoizeOne } from '@bigcommerce/memoize';
 import { compact, find, isEmpty, noop } from 'lodash';
@@ -5,7 +6,7 @@ import React, { Component, ReactNode } from 'react';
 import { ObjectSchema } from 'yup';
 
 import { withCheckout, CheckoutContextProps } from '../checkout';
-import { isCartChangedError, isRequestError, ErrorModal, ErrorModalOnCloseProps } from '../common/error';
+import { isCartChangedError, isRequestError, ErrorModal, ErrorModalOnCloseProps, ErrorLogger } from '../common/error';
 import { EMPTY_ARRAY } from '../common/utility';
 import { withLanguage, WithLanguageProps } from '../locale';
 import { TermsConditionsType } from '../termsConditions';
@@ -15,10 +16,11 @@ import mapSubmitOrderErrorMessage, { mapSubmitOrderErrorTitle } from './mapSubmi
 import mapToOrderRequestBody from './mapToOrderRequestBody';
 import { getUniquePaymentMethodId, PaymentMethodId, PaymentMethodProviderType } from './paymentMethod';
 import PaymentContext from './PaymentContext';
-import PaymentForm, { PaymentFormValues } from './PaymentForm';
+import PaymentForm from './PaymentForm';
 import { GuestCheckoutEvents } from '../checkout/AnalyticsEvents';
 
 export interface PaymentProps {
+    errorLogger: ErrorLogger;
     isEmbedded?: boolean;
     isUsingMultiShipping?: boolean;
     checkEmbeddedSupport?(methodIds: string[]): void; // TODO: We're currently doing this check in multiple places, perhaps we should move it up so this check get be done in a single place instead.
@@ -94,7 +96,12 @@ class Payment extends Component<PaymentProps & WithCheckoutPaymentProps & WithLa
             onFinalizeError = noop,
             onReady = noop,
             onUnhandledError = noop,
+            usableStoreCredit,
         } = this.props;
+
+        if (usableStoreCredit) {
+            this.handleStoreCreditChange(true);
+        }
 
         try {
             await loadPaymentMethods();
@@ -172,6 +179,7 @@ class Payment extends Component<PaymentProps & WithCheckoutPaymentProps & WithLa
                         onMethodSelect={ this.setSelectedMethod }
                         onStoreCreditChange={ this.handleStoreCreditChange }
                         onSubmit={ this.handleSubmit }
+                        onUnhandledError={ this.handleError }
                         selectedMethod={ selectedMethod }
                         shouldDisableSubmit={ uniqueSelectedMethodId && shouldDisableSubmit[uniqueSelectedMethodId] || undefined }
                         shouldHidePaymentSubmitButton={ uniqueSelectedMethodId && shouldHidePaymentSubmitButton[uniqueSelectedMethodId] || undefined }
@@ -298,6 +306,7 @@ class Payment extends Component<PaymentProps & WithCheckoutPaymentProps & WithLa
             selectedMethod.id === PaymentMethodId.Quadpay ||
             selectedMethod.id === PaymentMethodId.SagePay ||
             selectedMethod.id === PaymentMethodId.Sezzle ||
+            selectedMethod.id === PaymentMethodId.WorldpayAccess ||
             selectedMethod.id === PaymentMethodId.Zip ||
             selectedMethod.gateway === PaymentMethodId.AdyenV2 ||
             selectedMethod.gateway === PaymentMethodId.AdyenV2GooglePay ||
@@ -372,6 +381,23 @@ class Payment extends Component<PaymentProps & WithCheckoutPaymentProps & WithLa
             onUnhandledError(e);
         }
     };
+
+    private handleError: (error: Error) => void = (error: Error) => {
+        const {
+            onUnhandledError = noop,
+            errorLogger
+        } = this.props;
+
+        const { type } = error as any;
+
+        if (type === 'unexpected_detachment') {
+            errorLogger.log(error);
+
+            return;
+        }
+        
+        return onUnhandledError(error);
+    }
 
     private handleSubmit: (values: PaymentFormValues) => void = async values => {
         const {

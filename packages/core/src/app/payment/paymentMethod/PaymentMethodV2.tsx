@@ -1,18 +1,21 @@
+import { PaymentMethodProps as ResolvedPaymentMethodProps, PaymentFormValues, PaymentMethodResolveId } from '@bigcommerce/checkout/payment-integration-api';
 import { PaymentMethod } from '@bigcommerce/checkout-sdk';
 import React, { ComponentType } from 'react';
 
 import { withCheckout, WithCheckoutProps } from '../../checkout';
 import { connectFormik, WithFormikProps } from '../../common/form';
-import { resolvePaymentMethod, PaymentMethodProps as ResolvedPaymentMethodProps, PaymentMethodResolveId } from '../../core/paymentIntegration';
 import { withLanguage, WithLanguageProps } from '../../locale';
 import { withForm, WithFormProps } from '../../ui/form';
 import createPaymentFormService from '../createPaymentFormService';
+import resolvePaymentMethod from '../resolvePaymentMethod';
+import { default as PaymentMethodV1 } from './PaymentMethod';
 import withPayment, { WithPaymentProps } from '../withPayment';
-import { PaymentFormValues } from '../PaymentForm';
 
 export interface PaymentMethodProps {
     method: PaymentMethod;
-    resolveComponent?(query: PaymentMethodResolveId): ComponentType<ResolvedPaymentMethodProps>;
+    isEmbedded?: boolean;
+    isUsingMultiShipping?: boolean;
+    resolveComponent?(query: PaymentMethodResolveId): ComponentType<ResolvedPaymentMethodProps> | undefined;
     onUnhandledError(error: Error): void;
 }
 
@@ -29,7 +32,9 @@ const PaymentMethodContainer: ComponentType<
     checkoutState,
     disableSubmit,
     hidePaymentSubmitButton,
+    isEmbedded,
     isSubmitted,
+    isUsingMultiShipping,
     language,
     method,
     onUnhandledError,
@@ -55,6 +60,15 @@ const PaymentMethodContainer: ComponentType<
         gateway: method.gateway,
         type: method.type,
     });
+
+    if (!ResolvedPaymentMethod) {
+        return <PaymentMethodV1
+            isEmbedded={ isEmbedded }
+            isUsingMultiShipping={ isUsingMultiShipping }
+            method={ method }
+            onUnhandledError={ onUnhandledError }
+        />;
+    }
 
     return <ResolvedPaymentMethod
         checkoutService={ checkoutService }

@@ -7,7 +7,7 @@ import React, { FunctionComponent } from 'react';
 import { getCart } from '../cart/carts.mock';
 import { CheckoutProvider } from '../checkout';
 import { getCheckout, getCheckoutPayment } from '../checkout/checkouts.mock';
-import { ErrorModal } from '../common/error';
+import { createErrorLogger, ErrorModal } from '../common/error';
 import { getStoreConfig } from '../config/config.mock';
 import { getCustomer } from '../customer/customers.mock';
 import { createLocaleContext, LocaleContext, LocaleContextType } from '../locale';
@@ -15,8 +15,8 @@ import { getOrder } from '../order/orders.mock';
 import { getConsignment } from '../shipping/consignment.mock';
 import { Button } from '../ui/button';
 
-import { getPaymentMethod } from './payment-methods.mock';
 import { PaymentMethodId } from './paymentMethod';
+import { getPaymentMethod } from './payment-methods.mock';
 import Payment, { PaymentProps } from './Payment';
 import PaymentForm, { PaymentFormProps } from './PaymentForm';
 
@@ -85,6 +85,7 @@ describe('Payment', () => {
         localeContext = createLocaleContext(getStoreConfig());
 
         defaultProps = {
+            errorLogger: createErrorLogger(),
             onSubmit: jest.fn(),
             onSubmitError: jest.fn(),
             onUnhandledError: jest.fn(),
@@ -241,6 +242,24 @@ describe('Payment', () => {
 
         expect(checkoutService.applyStoreCredit)
             .toHaveBeenCalledWith(false);
+    });
+
+    it('calls handleStoreCreditChange when component did mount', async () => {
+        jest.spyOn(checkoutService, 'applyStoreCredit')
+            .mockResolvedValue(checkoutState);
+        const defaultProps = {
+            errorLogger: createErrorLogger(),
+            onSubmit: jest.fn(),
+            onSubmitError: jest.fn(),
+            onUnhandledError: jest.fn(),
+            usableStoreCredit: 10,
+        }
+        mount(<PaymentTest { ...defaultProps } />);
+
+        await new Promise(resolve => process.nextTick(resolve));
+
+        expect(checkoutService.applyStoreCredit)
+            .toHaveBeenCalledWith(true);
     });
 
     it('sets default selected payment method', async () => {

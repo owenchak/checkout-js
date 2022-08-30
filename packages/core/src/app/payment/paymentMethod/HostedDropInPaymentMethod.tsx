@@ -1,3 +1,4 @@
+import { PaymentFormValues } from '@bigcommerce/checkout/payment-integration-api';
 import { CardInstrument, CheckoutSelectors, CustomerInitializeOptions,
     CustomerRequestOptions,
     Instrument, PaymentInitializeOptions,
@@ -18,7 +19,6 @@ import { isBankAccountInstrument, isCardInstrument, isInstrumentCardCodeRequired
     CardInstrumentFieldset,
     CreditCardValidation } from '../storedInstrument';
 import withPayment, { WithPaymentProps } from '../withPayment';
-import { PaymentFormValues } from '../PaymentForm';
 
 export interface HostedDropInPaymentMethodProps {
     containerId: string;

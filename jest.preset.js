@@ -3,6 +3,7 @@ const nxPreset = require('@nrwl/jest/preset');
 
 module.exports = {
     ...nxPreset,
+    testPathIgnorePatterns: ["<rootDir>/e2e/"],
     coverageThreshold: {
         global: {
             branches: 80,
@@ -10,6 +11,11 @@ module.exports = {
             lines: 80,
             statements: 80,
         },
+    },
+    transform: {
+        '^.+\\.(ts|tsx)?$': 'ts-jest',
+        '\\.(gif|png|jpe?g|svg)$': '../../scripts/jest/file-transformer',
+        '\\.scss$': '../../scripts/jest/style-transformer',
     },
     moduleFileExtensions: [
         'ts',

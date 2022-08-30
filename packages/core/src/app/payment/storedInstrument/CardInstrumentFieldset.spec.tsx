@@ -1,3 +1,4 @@
+import { CardInstrumentFieldsetValues } from '@bigcommerce/checkout/payment-integration-api';
 import { mount } from 'enzyme';
 import { Formik } from 'formik';
 import { noop } from 'lodash';
@@ -8,7 +9,7 @@ import { createLocaleContext, LocaleContext, LocaleContextType } from '../../loc
 
 import { getInstruments } from './instruments.mock';
 import isCardInstrument from './isCardInstrument';
-import CardInstrumentFieldset, { CardInstrumentFieldsetProps, CardInstrumentFieldsetValues } from './CardInstrumentFieldset';
+import CardInstrumentFieldset, { CardInstrumentFieldsetProps } from './CardInstrumentFieldset';
 import InstrumentSelect from './InstrumentSelect';
 
 describe('CardInstrumentFieldset', () => {

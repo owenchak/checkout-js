@@ -1,3 +1,4 @@
+import { PaymentFormValues } from '@bigcommerce/checkout/payment-integration-api';
 import { createCheckoutService, CheckoutService, StoreConfig } from '@bigcommerce/checkout-sdk';
 import { mount } from 'enzyme';
 import { Formik } from 'formik';
@@ -9,12 +10,11 @@ import { getStoreConfig } from '../../config/config.mock';
 import { createLocaleContext, LocaleContext, LocaleContextType } from '../../locale';
 import { CreditCardIconList } from '../creditCard';
 import { getPaymentMethod } from '../payment-methods.mock';
-import { PaymentFormValues } from '../PaymentForm';
 
 import getPaymentMethodName from './getPaymentMethodName';
 import PaymentMethodId from './PaymentMethodId';
-import PaymentMethodTitle, { PaymentMethodTitleProps } from './PaymentMethodTitle';
 import PaymentMethodType from './PaymentMethodType';
+import PaymentMethodTitle, { PaymentMethodTitleProps } from './PaymentMethodTitle';
 
 describe('PaymentMethodTitle', () => {
     let PaymentMethodTitleTest: FunctionComponent<PaymentMethodTitleProps & { formValues: PaymentFormValues }>;

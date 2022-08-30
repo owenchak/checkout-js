@@ -1,3 +1,4 @@
+import { PaymentFormValues } from '@bigcommerce/checkout/payment-integration-api';
 import { LanguageService, PaymentMethod } from '@bigcommerce/checkout-sdk';
 import { number } from 'card-validator';
 import { compact } from 'lodash';
@@ -7,12 +8,13 @@ import { withCheckout, CheckoutContextProps } from '../../checkout';
 import { connectFormik, ConnectFormikProps } from '../../common/form';
 import { withLanguage, WithLanguageProps } from '../../locale';
 import { mapFromPaymentMethodCardType, CreditCardIconList } from '../creditCard';
-import { PaymentFormValues } from '../PaymentForm';
 
 import getPaymentMethodDisplayName from './getPaymentMethodDisplayName';
 import getPaymentMethodName from './getPaymentMethodName';
 import PaymentMethodId from './PaymentMethodId';
 import PaymentMethodType from './PaymentMethodType';
+import { isHostedCreditCardFieldsetValues } from './HostedCreditCardFieldsetValues';
+import { hasCreditCardNumber } from './CreditCardFieldsetValues';
 
 export interface PaymentMethodTitleProps {
     method: PaymentMethod;
@@ -30,6 +32,7 @@ function getPaymentMethodTitle(
     const cdnPath = (path: string) => `${basePath}${path}`;
 
     return method => {
+        const paymentWithLogo = method.initializationData?.methodsWithLogo ? method.initializationData.methodsWithLogo : [];
         const methodName = getPaymentMethodName(language)(method);
         const methodDisplayName = getPaymentMethodDisplayName(language)(method);
         // TODO: API could provide the data below so UI can read simply read it.
@@ -165,11 +168,11 @@ function getPaymentMethodTitle(
                 titleText: methodName,
             },
             [PaymentMethodId.StripeV3]: {
-                logoUrl: '',
+                logoUrl: paymentWithLogo.includes(method.id) ? cdnPath(`/img/payment-providers/stripe-${method.id.toLowerCase()}.svg`) : '',
                 titleText: method.method === 'iban' ? language.translate('payment.stripe_sepa_display_name_text') : methodName,
             },
             [PaymentMethodId.StripeUPE]: {
-                logoUrl: '',
+                logoUrl: paymentWithLogo.includes(method.id) ? cdnPath(`/img/payment-providers/stripe-${method.id.toLowerCase()}.svg`) : '',
                 titleText: method.method === 'iban' ? language.translate('payment.stripe_sepa_display_name_text') : methodName,
             },
             [PaymentMethodId.WorldpayAccess]: {
@@ -213,11 +216,11 @@ const PaymentMethodTitle: FunctionComponent<PaymentMethodTitleProps & WithLangua
             return;
         }
 
-        if ('hostedForm' in values && 'cardType' in values.hostedForm && values.hostedForm.cardType) {
+        if (isHostedCreditCardFieldsetValues(values) && values.hostedForm.cardType) {
             return values.hostedForm.cardType;
         }
 
-        if ('ccNumber' in values && values.ccNumber) {
+        if (hasCreditCardNumber(values) && values.ccNumber) {
             const { card } = number(values.ccNumber);
 
             if (!card) {
@@ -230,20 +233,21 @@ const PaymentMethodTitle: FunctionComponent<PaymentMethodTitleProps & WithLangua
 
     return (
         <div className="paymentProviderHeader-container">
-            { logoUrl && <img
-                alt={ methodName }
-                className="paymentProviderHeader-img"
-                data-test="payment-method-logo"
-                src={ logoUrl }
-            /> }
+            <div className="paymentProviderHeader-nameContainer">
+                { logoUrl && <img
+                    alt={ methodName }
+                    className="paymentProviderHeader-img"
+                    data-test="payment-method-logo"
+                    src={ logoUrl }
+                /> }
 
-            { titleText && <div
-                className="paymentProviderHeader-name"
-                data-test="payment-method-name"
-            >
-                { titleText }
-            </div> }
-
+                { titleText && <div
+                    className="paymentProviderHeader-name"
+                    data-test="payment-method-name"
+                >
+                    { titleText }
+                </div> }
+            </div>
             <div className="paymentProviderHeader-cc">
                 <CreditCardIconList
                     cardTypes={ compact(method.supportedCards.map(mapFromPaymentMethodCardType)) }

@@ -9,9 +9,9 @@ import { getStoreConfig } from '../../config/config.mock';
 import { createLocaleContext, LocaleContext, LocaleContextType } from '../../locale';
 import { getPaymentMethod } from '../payment-methods.mock';
 
+import PaymentMethodId from './PaymentMethodId';
 import HostedWidgetPaymentMethod, { HostedWidgetPaymentMethodProps } from './HostedWidgetPaymentMethod';
 import { default as PaymentMethodComponent, PaymentMethodProps } from './PaymentMethod';
-import PaymentMethodId from './PaymentMethodId';
 
 describe('when using Klarna payment', () => {
     let method: PaymentMethod;

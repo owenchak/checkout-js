@@ -13,8 +13,8 @@ import { withHostedCreditCardFieldset, WithInjectedHostedCreditCardFieldsetProps
 import { getPaymentMethod } from '../payment-methods.mock';
 
 import CreditCardPaymentMethod from './CreditCardPaymentMethod';
-import PaymentMethodId from './PaymentMethodId';
 import PaypalCommerceCreditCardPaymentMethod, { PaypalCommerceCreditCardPaymentMethodProps } from './PaypalCommerceCreditCardPaymentMethod';
+import PaymentMethodId from './PaymentMethodId';
 
 const hostedFormOptions = {
     fields: {
