@@ -24,7 +24,7 @@ export interface PaymentProps {
     isEmbedded?: boolean;
     isUsingMultiShipping?: boolean;
     checkEmbeddedSupport?(methodIds: string[]): void; // TODO: We're currently doing this check in multiple places, perhaps we should move it up so this check get be done in a single place instead.
-    emitAnalyticsEvent(event: string): void;
+    emitAnalyticsEvent(event: string, eventProps?: any): void;
     onCartChangedError?(error: CartChangedError): void;
     onFinalize?(): void;
     onFinalizeError?(error: Error): void;
@@ -97,10 +97,18 @@ class Payment extends Component<PaymentProps & WithCheckoutPaymentProps & WithLa
             onReady = noop,
             onUnhandledError = noop,
             usableStoreCredit,
+            defaultMethod,
+            emitAnalyticsEvent,
         } = this.props;
+
+        const { selectedMethod = defaultMethod } = this.state;
 
         if (usableStoreCredit) {
             this.handleStoreCreditChange(true);
+        }
+
+        if (selectedMethod) {
+            emitAnalyticsEvent(GuestCheckoutEvents.PaymentMethodSelected, { paymentOption: selectedMethod.id })
         }
 
         try {
@@ -445,10 +453,15 @@ class Payment extends Component<PaymentProps & WithCheckoutPaymentProps & WithLa
     };
 
     private setSelectedMethod: (method?: PaymentMethod) => void = method => {
+        const { emitAnalyticsEvent } = this.props;
         const { selectedMethod } = this.state;
 
         if (selectedMethod === method) {
             return;
+        }
+
+        if (method) {
+            emitAnalyticsEvent(GuestCheckoutEvents.PaymentMethodSelected, { paymentOption: method.id });
         }
 
         this.setState({ selectedMethod: method });

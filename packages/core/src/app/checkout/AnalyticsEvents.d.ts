@@ -15,6 +15,6 @@ export declare enum GuestCheckoutEvents {
 }
 export declare const AnalyticsEvents: {
     init: () => void;
-    emitEvent: (eventName: string) => void;
+    emitEvent: (eventName: string, eventProps?: any) => void;
     onBeforeUnload: () => void;
 };

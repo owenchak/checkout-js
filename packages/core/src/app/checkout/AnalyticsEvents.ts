@@ -15,6 +15,7 @@ export enum GuestCheckoutEvents {
   ShippingComplete = "Shipping method step complete",
   BillingEntered = "Billing details entered",
   PaymentEntered = "Payment details fully entered",
+  PaymentMethodSelected = "Payment method selected",
   PaymentRejected = "Payment rejected",
   PaymentComplete = "Payment complete",
   Exit = "Exit"
@@ -34,10 +35,11 @@ export const AnalyticsEvents = {
       console.log("--bolt bigc--: error during emitting event ", e);
     }
   },
-  emitEvent: (eventName: string) => {
+  emitEvent: (eventName: string, eventProps?: any) => {
     try {
       console.log("--bolt bigc--: emitting analytics event ", eventName);
       const props: any = {
+        ...eventProps,
         nextState: eventName,
         prevState: "",
       };

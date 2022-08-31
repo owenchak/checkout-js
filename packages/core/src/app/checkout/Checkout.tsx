@@ -210,7 +210,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         }
     }
 
-    private emitAnalyticsEvent: (event:string) => void = (event: string) => {
+    private emitAnalyticsEvent: (event:string, eventProps?: any) => void = (event: string, eventProps?: any) => {
         // when events are emitted by manually entering details on each step,
         // set a stepComplete state flag so that duplicate events aren't emitted
         // from the navigateToNextStep function
@@ -232,7 +232,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                 this.setState({ isBillingComplete: true });
                 break;
         }
-        AnalyticsEvents.emitEvent(event);
+        AnalyticsEvents.emitEvent(event, eventProps);
     }
 
     render(): ReactNode {
