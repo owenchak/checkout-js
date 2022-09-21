@@ -3,6 +3,7 @@ import { noop } from 'lodash';
 import React, { Component, ReactNode } from 'react';
 
 import { withCheckout, CheckoutContextProps } from '../checkout';
+import { isErrorWithType } from '../common/error';
 import { LoadingOverlay } from '../ui/loading';
 
 import { CreateAccountFormValues } from './getCreateCustomerValidationSchema';
@@ -149,7 +150,6 @@ class Customer extends Component<CustomerProps & WithCheckoutCustomerProps, Cust
             isExecutingPaymentMethodCheckout = false,
             isInitializing = false,
             privacyPolicyUrl,
-            providerWithCustomCheckout,
             requiresMarketingConsent,
             onUnhandledError = noop,
         } = this.props;
@@ -167,7 +167,7 @@ class Customer extends Component<CustomerProps & WithCheckoutCustomerProps, Cust
                         onError={ onUnhandledError }
                     />
                 }
-                continueAsGuestButtonLabelId={ providerWithCustomCheckout ? 'customer.continue' : 'customer.continue_as_guest_action' }
+                continueAsGuestButtonLabelId={ 'customer.continue' }
                 defaultShouldSubscribe={ defaultShouldSubscribe }
                 email={ this.draftEmail || email }
                 isLoading={ isContinuingAsGuest || isInitializing || isExecutingPaymentMethodCheckout }
@@ -325,17 +325,17 @@ class Customer extends Component<CustomerProps & WithCheckoutCustomerProps, Cust
 
             this.draftEmail = undefined;
         } catch (error) {
-            if (error.type === 'update_subscriptions' || error.type === 'payment_method_client_invalid') {
+            if (isErrorWithType(error) && (error.type === 'update_subscriptions' || error.type === 'payment_method_client_invalid')) {
                 this.draftEmail = undefined;
 
                 onContinueAsGuest();
             }
 
-            if (error.status === 429) {
+            if (isErrorWithType(error) && error.status === 429) {
                 return onChangeViewType(CustomerViewType.EnforcedLogin);
             }
 
-            if (error.status === 403) {
+            if (isErrorWithType(error) && error.status === 403) {
                 return onChangeViewType(CustomerViewType.CancellableEnforcedLogin);
             }
 

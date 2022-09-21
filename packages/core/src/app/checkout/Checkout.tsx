@@ -1,4 +1,4 @@
-import { Address, Cart, CartChangedError, CheckoutParams, CheckoutSelectors, Consignment, EmbeddedCheckoutMessenger, EmbeddedCheckoutMessengerOptions, FlashMessage, Promotion, RequestOptions, StepTracker } from '@bigcommerce/checkout-sdk';
+import { Address, Cart, CartChangedError, CheckoutParams, CheckoutSelectors, Consignment, EmbeddedCheckoutMessenger, EmbeddedCheckoutMessengerOptions, FlashMessage, Promotion, RequestOptions, StepTracker, BodlService } from '@bigcommerce/checkout-sdk';
 import classNames from 'classnames';
 import { find, findIndex } from 'lodash';
 import React, { lazy, Component, ReactNode } from 'react';
@@ -63,6 +63,7 @@ export interface CheckoutProps {
     errorLogger: ErrorLogger;
     createEmbeddedMessenger(options: EmbeddedCheckoutMessengerOptions): EmbeddedCheckoutMessenger;
     createStepTracker(): StepTracker;
+    createBodlService(): BodlService;
 }
 
 export interface CheckoutState {
@@ -108,6 +109,7 @@ export interface WithCheckoutProps {
 
 class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguageProps, CheckoutState> {
     stepTracker: StepTracker | undefined;
+    bodlService: BodlService | undefined;
 
     state: CheckoutState = {
         isBillingSameAsShipping: true,
@@ -140,6 +142,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
             checkoutId,
             containerId,
             createStepTracker,
+            createBodlService,
             createEmbeddedMessenger,
             embeddedStylesheet,
             loadCheckout,
@@ -187,6 +190,9 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
             this.stepTracker = createStepTracker();
             this.stepTracker.trackCheckoutStarted();
 
+            this.bodlService = createBodlService();
+            this.bodlService.checkoutBegin();
+
             const consignments = data.getConsignments();
             const cart = data.getCart();
 
@@ -206,7 +212,9 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                 this.handleReady();
             }
         } catch (error) {
-            this.handleUnhandledError(error);
+            if (error instanceof Error) {
+                this.handleUnhandledError(error);
+            }
         }
     }
 
@@ -298,6 +306,7 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
                             .map(step => this.renderStep({
                                 ...step,
                                 isActive: activeStepType ? activeStepType === step.type : defaultStepType === step.type,
+                                isBusy: isPending,
                             })) }
                     </ol>
                 </div>
@@ -695,7 +704,9 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         const { loginUrl, cartUrl, isPriceHiddenFromGuests, isGuestEnabled } = this.props;
 
         if (isPriceHiddenFromGuests) {
-            return window.top.location.href = cartUrl;
+            if (window.top) {
+                return window.top.location.href = cartUrl;
+            }
         }
 
         if (this.embeddedMessenger) {
@@ -710,7 +721,9 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
             this.setState({ isCartEmpty: true });
 
             if (!isEmbedded()) {
-                return window.top.location.assign(loginUrl);
+                if (window.top) {
+                    return window.top.location.assign(loginUrl);
+                }
             }
         }
 
@@ -744,7 +757,9 @@ class Checkout extends Component<CheckoutProps & WithCheckoutProps & WithLanguag
         if (customerViewType === CustomerViewType.CreateAccount &&
             (!canCreateAccountInCheckout || isEmbedded())
         ) {
-            window.top.location.replace(createAccountUrl);
+            if (window.top) {
+                window.top.location.replace(createAccountUrl);
+            }
 
             return;
         }

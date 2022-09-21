@@ -4,7 +4,7 @@ import React, { memo, Fragment, FunctionComponent } from 'react';
 import { isApplePayWindow } from '../common/utility';
 import { TranslatedString } from '../locale';
 
-import { ApplePayButton } from './customWalletButton';
+import { ApplePayButton, AmazonPayV2Button } from './customWalletButton';
 import CheckoutButton from './CheckoutButton';
 
 const APPLE_PAY = 'applepay';
@@ -60,7 +60,7 @@ const CheckoutButtonList: FunctionComponent<CheckoutButtonListProps> = ({
         try {
             checkEmbeddedSupport(supportedMethodIds);
         } catch (error) {
-            if (onError) {
+            if (error instanceof Error && onError) {
                 onError(error);
             } else {
                 throw error;
@@ -75,23 +75,35 @@ const CheckoutButtonList: FunctionComponent<CheckoutButtonListProps> = ({
             { !isInitializing && <p><TranslatedString id="remote.continue_with_text" /></p> }
 
             <div className="checkoutRemote">
-                { supportedMethodIds.map(methodId =>
-                    methodId === 'applepay' ?
-                        <ApplePayButton
+                { supportedMethodIds.map(methodId => {
+                    if (methodId === 'applepay') {
+                        return <ApplePayButton
                             containerId={ `${methodId}CheckoutButton` }
                             key={ methodId }
                             methodId={ methodId }
                             onError={ onError }
                             { ...rest }
-                        /> :
-                        <CheckoutButton
+                        />;
+                    }
+
+                    if (methodId === 'amazonpay') {
+                        return <AmazonPayV2Button
                             containerId={ `${methodId}CheckoutButton` }
                             key={ methodId }
                             methodId={ methodId }
                             onError={ onError }
                             { ...rest }
-                        />
-                ) }
+                        />;
+                    }
+
+                    return <CheckoutButton
+                        containerId={ `${methodId}CheckoutButton` }
+                        key={ methodId }
+                        methodId={ methodId }
+                        onError={ onError }
+                        { ...rest }
+                    />
+                }) }
             </div>
         </Fragment>
     );
