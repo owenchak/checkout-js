@@ -77,9 +77,9 @@ export const AnalyticsEvents = {
       console.log("--bolt bigc--: error during polling for BoltAnalytics", e);
     }
   },
-  emitEvent: (eventName: string, eventProps?: any) => {
+  emitEvent: (eventName: string, eventArgs?: any) => {
     try {
-      eventQueue.push({ eventName, eventProps });
+      eventQueue.push({ eventName, eventProps: {...eventArgs, emitted_path: 'guest'} });
       // wait until checkoutStepComplete is defined to emit logs
       if (!boltTracker || !boltTracker.checkoutStepComplete) {
         return;
