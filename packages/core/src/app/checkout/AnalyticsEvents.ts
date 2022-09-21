@@ -22,7 +22,7 @@ export enum GuestCheckoutEvents {
 const defaultTimeout = 1000;
 const defaultPollingInterval = 10;
 // borrowed polling mechanism 
-async function pollUntilAccepted<T>(
+function pollUntilAccepted<T>(
   fn: () => T,
   accept: (t: T) => boolean,
   timeoutMillis = defaultTimeout,
