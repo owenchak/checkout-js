@@ -2,8 +2,8 @@ export {};
 
 declare global {
   interface Window {
-    BoltTrack: { 
-      recordEvent: (event: string, properties?: any) => void;
+    BoltAnalytics: {
+      checkoutStepComplete?: (event: string, properties?: any) => void;
     }
   }
 }
