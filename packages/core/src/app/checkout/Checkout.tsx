@@ -185,6 +185,7 @@ class Checkout extends Component<
             this.unsubscribeFromConsignments = undefined;
         }
 
+        window.removeEventListener('beforeunload', AnalyticsEvents.onBeforeUnload);
         window.removeEventListener('beforeunload', this.handleBeforeExit);
         this.handleBeforeExit();
     }
@@ -204,6 +205,7 @@ class Checkout extends Component<
             /** BOLT ANALYTICS */
             // init Bolt AnalyticsEvents emitter
             AnalyticsEvents.init();
+            window.addEventListener('beforeunload', AnalyticsEvents.onBeforeUnload);
 
             const { data } = await loadCheckout(checkoutId, {
                 params: {
